@@ -66,6 +66,13 @@ function dangerLevel(score) {
 }
 
 
+function DeltaBadge({ value }) {
+  if (value === null || value === undefined) return null
+  if (value > 0) return <span className="card-delta delta-up">+{value} ▲</span>
+  if (value < 0) return <span className="card-delta delta-down">{value} ▽</span>
+  return <span className="card-delta delta-zero">±0</span>
+}
+
 function TopNav() {
   return (
     <nav className="top-nav">
@@ -175,6 +182,7 @@ function App() {
             {data.society_score}
           </p>
           <p className="card-max">/ 30</p>
+          <DeltaBadge value={delta(data.society_score, 'society_score')} />
         </div>
 
         <div className="nes-container is-dark with-title score-card">
@@ -183,6 +191,7 @@ function App() {
             {data.climate_score}
           </p>
           <p className="card-max">/ 30</p>
+          <DeltaBadge value={delta(data.climate_score, 'climate_score')} />
         </div>
 
         <div className="nes-container is-dark with-title score-card">
@@ -191,6 +200,7 @@ function App() {
             {data.economy_score}
           </p>
           <p className="card-max">/ 30</p>
+          <DeltaBadge value={delta(data.economy_score, 'economy_score')} />
         </div>
 
         <div className="nes-container is-dark with-title score-card">
@@ -199,6 +209,7 @@ function App() {
             {data.solar_score ?? 0}
           </p>
           <p className="card-max">/ 10</p>
+          <DeltaBadge value={delta(data.solar_score, 'solar_score')} />
         </div>
       </section>
 
