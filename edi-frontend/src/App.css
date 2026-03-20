@@ -245,8 +245,7 @@ body {
 .modal-box {
   width: 100%;
   max-width: 480px;
-  max-height: 80vh;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .modal-content {

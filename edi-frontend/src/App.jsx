@@ -168,6 +168,7 @@ function App() {
   }
 
   const totalColor = scoreColor(data.total_score ?? 0, 100)
+  const { label: dangerLabel, cls: dangerCls } = dangerLevel(data.total_score ?? 0)
   const rawDate = new Date(data.target_date)
   const dateStr = isNaN(rawDate.getTime()) ? '-' : rawDate.toLocaleDateString('ko-KR')
 
@@ -184,10 +185,7 @@ function App() {
           {data.total_score}
           <span className="score-max"> / 100</span>
         </p>
-        {(() => {
-          const { label, cls } = dangerLevel(data.total_score ?? 0)
-          return <p className={`danger-badge nes-text ${cls}`}>{label}</p>
-        })()}
+        <p className={`danger-badge nes-text ${dangerCls}`}>{dangerLabel}</p>
         <p className="game-date">{dateStr}</p>
       </section>
 
