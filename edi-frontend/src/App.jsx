@@ -29,12 +29,26 @@ function useDoomData() {
   return { data, loading, error }
 }
 
+function useDoomHistory() {
+  const [historyData, setHistoryData] = useState([])
+
+  useEffect(() => {
+    fetch('/api/doom-history?days=30')
+      .then(res => res.ok ? res.json() : [])
+      .then(json => setHistoryData(Array.isArray(json) ? json : []))
+      .catch(() => setHistoryData([]))
+  }, [])
+
+  return historyData
+}
+
 function scoreColor(score, max) {
   const ratio = score / max
   if (ratio >= 0.6) return 'is-error'
   if (ratio >= 0.3) return 'is-warning'
   return 'is-success'
 }
+
 
 function TopNav() {
   return (
@@ -48,6 +62,16 @@ function TopNav() {
 
 function App() {
   const { data, loading, error } = useDoomData()
+  const historyData = useDoomHistory()
+
+  const yesterday = historyData.length >= 2 ? historyData[historyData.length - 2] : null
+
+  function delta(todayVal, key) {
+    if (!yesterday || todayVal == null || yesterday[key] == null) return null
+    return Math.round(todayVal - yesterday[key])
+  }
+
+  const [showTerms, setShowTerms] = useState(false)
 
   if (loading) {
     return (
@@ -91,8 +115,9 @@ function App() {
     )
   }
 
-  const totalColor = scoreColor(data.total_score, 100)
-  const dateStr = new Date(data.target_date).toLocaleDateString('ko-KR')
+  const totalColor = scoreColor(data.total_score ?? 0, 100)
+  const rawDate = new Date(data.target_date)
+  const dateStr = isNaN(rawDate.getTime()) ? '-' : rawDate.toLocaleDateString('ko-KR')
 
   return (
     <>
@@ -116,7 +141,7 @@ function App() {
           <p className="title">💬 AI COMMENTARY</p>
           <div className="commentary-body">
             <i className="nes-octocat is-small commentary-icon" />
-            <p className="commentary-text">{data.ai_commentary}</p>
+            <p className="commentary-text">{data.ai_commentary ?? '해설 데이터 없음'}</p>
           </div>
         </div>
       </section>
@@ -148,7 +173,7 @@ function App() {
         </div>
 
         <div className="nes-container is-dark with-title score-card">
-          <p className="title">☀SOLAR STORM</p>
+          <p className="title">☀SOLAR</p>
           <p className={`card-score nes-text ${scoreColor(data.solar_score, 10)}`}>
             {data.solar_score ?? 0}
           </p>
@@ -158,6 +183,40 @@ function App() {
 
       {/* 트렌드 차트 */}
       <DoomChart />
+
+      {/* 푸터 */}
+      <footer className="site-footer">
+        <div className="footer-row">
+          <a
+            href="https://github.com/OLLAGANDA/earth-doom-index"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-link"
+          >
+            GITHUB
+          </a>
+          <span className="footer-sep">|</span>
+          <span>© 2026 EARTH DOOM INDEX</span>
+          <span className="footer-sep">|</span>
+          <button className="terms-btn" onClick={() => setShowTerms(true)}>이용약관</button>
+        </div>
+      </footer>
+
+      {showTerms && (
+        <div className="modal-overlay" onClick={() => setShowTerms(false)}>
+          <div className="modal-box nes-container is-dark" onClick={e => e.stopPropagation()}>
+            <p className="title">이용약관</p>
+            <div className="modal-content">
+              <p>1. 본 서비스는 순수한 재미를 위한 토이 프로젝트입니다.</p>
+              <p>2. 표시되는 지수는 실제 지구 위험도와 무관하며, 어떠한 과학적·법적 근거도 없습니다.</p>
+              <p>3. 본 서비스의 정보를 실제 의사결정에 활용하지 마세요.</p>
+              <p>4. 서비스는 예고 없이 변경되거나 종료될 수 있습니다.</p>
+              <p>5. 진지하게 받아들이지 마세요. 지구는 (아마도) 괜찮습니다.</p>
+            </div>
+            <button className="nes-btn is-error modal-close" onClick={() => setShowTerms(false)}>닫기</button>
+          </div>
+        </div>
+      )}
 
     </div>
     </>
