@@ -180,8 +180,7 @@ function App() {
 
       {/* 상단: 타이틀 + 총점 */}
       <section className="nes-container is-dark with-title title-section">
-        <p className="title">EARTH DOOM INDEX</p>
-        <p className="game-subtitle">지구 멸망 지수</p>
+        <p className="game-subtitle">EARTH DOOM INDEX</p>
         <p className={`total-score nes-text ${totalColor}`}>
           {data.total_score}
           <span className="score-max"> / 100</span>
@@ -193,9 +192,8 @@ function App() {
       {/* 중단: AI 코멘터리 대화창 */}
       <section className="commentary-section">
         <div className="nes-container is-dark with-title">
-          <p className="title">💬 AI COMMENTARY</p>
+          <p className="title">🤖 DOOM-9000</p>
           <div className="commentary-body">
-            <i className="nes-octocat is-small commentary-icon" />
             <p className="commentary-text">{data.ai_commentary ?? '해설 데이터 없음'}</p>
           </div>
         </div>

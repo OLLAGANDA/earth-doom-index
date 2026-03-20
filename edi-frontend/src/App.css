@@ -121,10 +121,6 @@ body {
   gap: 24px;
 }
 
-.commentary-icon {
-  flex-shrink: 0;
-  margin-top: 4px;
-}
 
 .commentary-text {
   font-size: 11px;
