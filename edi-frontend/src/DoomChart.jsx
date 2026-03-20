@@ -1,39 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts'
-
-function useDoomHistory(days) {
-  const [historyData, setHistoryData] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    const controller = new AbortController()
-    setLoading(true)
-    setError(null)
-
-    fetch(`/api/doom-history?days=${days}`, { signal: controller.signal })
-      .then(res => {
-        if (!res.ok) throw new Error(`서버 오류: ${res.status}`)
-        return res.json()
-      })
-      .then(json => {
-        setHistoryData(json)
-        setLoading(false)
-      })
-      .catch(err => {
-        if (err.name === 'AbortError') return
-        setError(err.message)
-        setLoading(false)
-      })
-
-    return () => controller.abort()
-  }, [days])
-
-  return { historyData, loading, error }
-}
 
 const formatDate = (dateStr) => {
   const d = new Date(dateStr)
@@ -50,7 +20,7 @@ const RetroTooltip = ({ active, payload, label }) => {
       fontSize: '9px',
       lineHeight: '2',
     }}>
-      <p style={{ color: '#aaa', marginBottom: 4 }}>{formatDate(label)}</p>
+      <p style={{ color: '#ddd', marginBottom: 4 }}>{formatDate(label)}</p>
       {payload.map(entry => (
         <p key={entry.dataKey} style={{ color: entry.color, margin: 0 }}>
           {entry.name}: {entry.value}
@@ -60,10 +30,15 @@ const RetroTooltip = ({ active, payload, label }) => {
   )
 }
 
-export default function DoomChart() {
+export default function DoomChart({ historyData: allHistory = [] }) {
   const [days, setDays] = useState(7)
   const [showBreakdown, setShowBreakdown] = useState(false)
-  const { historyData, loading, error } = useDoomHistory(days)
+
+  const historyData = allHistory.slice(-days)
+
+  const scores = historyData.map(d => d.total_score).filter(v => v != null)
+  const chartMax = scores.length ? Math.max(...scores) : null
+  const chartMin = scores.length ? Math.min(...scores) : null
 
   return (
     <section className="nes-container is-dark with-title chart-section">
@@ -90,26 +65,15 @@ export default function DoomChart() {
         </button>
       </div>
 
-      {loading && (
-        <p className="nes-text is-primary blink" style={{ fontSize: '10px' }}>
-          LOADING...
-        </p>
-      )}
-
-      {error && (
-        <p className="nes-text is-error" style={{ fontSize: '10px' }}>
-          ERROR: {error}
-        </p>
-      )}
-
-      {!loading && !error && historyData.length === 0 && (
+      {historyData.length === 0 && (
         <div className="nes-container is-dark">
           <p className="nes-text is-warning" style={{ fontSize: '10px' }}>NO HISTORY</p>
           <p className="sub-text">아직 기록된 데이터가 없습니다.</p>
         </div>
       )}
 
-      {!loading && !error && historyData.length > 0 && (
+      {historyData.length > 0 && (
+      <div className="chart-wrapper">
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={historyData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="4 4" stroke="#444" />
@@ -136,6 +100,22 @@ export default function DoomChart() {
               strokeWidth={3}
               dot={false}
             />
+            {chartMax !== null && (
+              <ReferenceLine
+                y={chartMax}
+                stroke="#e76e55"
+                strokeDasharray="4 4"
+                label={{ value: 'HIGH', fill: '#e76e55', fontSize: 8, position: 'insideTopRight' }}
+              />
+            )}
+            {chartMin !== null && chartMin !== chartMax && (
+              <ReferenceLine
+                y={chartMin}
+                stroke="#92cc41"
+                strokeDasharray="4 4"
+                label={{ value: 'LOW', fill: '#92cc41', fontSize: 8, position: 'insideBottomRight' }}
+              />
+            )}
             {showBreakdown && (
               <Line
                 type="linear"
@@ -178,9 +158,10 @@ export default function DoomChart() {
             )}
           </LineChart>
         </ResponsiveContainer>
+      </div>
       )}
 
-      {!loading && !error && historyData.length > 0 && historyData.length < days && (
+      {historyData.length > 0 && historyData.length < days && (
         <p className="sub-text" style={{ marginTop: 8 }}>
           * {historyData.length}일치 데이터만 존재합니다.
         </p>
