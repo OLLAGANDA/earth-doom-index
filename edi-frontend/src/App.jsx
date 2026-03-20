@@ -83,13 +83,13 @@ const CARD_INFO = {
   economy: {
     title: '📈 ECONOMY',
     desc: '경제 위협 지수. 글로벌 금융 시장 지표를 기반으로 경기 침체, 시장 불안정성, 인플레이션 위험을 측정합니다.',
-    source: '경제 지표 API',
+    source: 'Yahoo Finance API',
     max: 30,
   },
   solar: {
     title: '☀ SOLAR STORM',
     desc: '태양 폭풍 지수. 태양 흑점 활동 및 지자기 폭풍 데이터를 기반으로 우주 기상이 지구에 미치는 위협을 측정합니다.',
-    source: 'NOAA / NASA',
+    source: 'NOAA SWPC',
     max: 10,
   },
 }
