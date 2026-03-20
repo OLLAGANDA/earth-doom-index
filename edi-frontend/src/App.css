@@ -84,6 +84,12 @@ body {
   padding-bottom: 32px !important;
 }
 
+.danger-badge {
+  font-size: 14px !important;
+  letter-spacing: 3px;
+  margin: 8px 0 4px !important;
+}
+
 .game-subtitle {
   font-size: 10px;
   color: #aaa;
@@ -139,6 +145,13 @@ body {
   text-align: center;
 }
 
+.score-card .title {
+  min-height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .card-score {
   font-size: 36px !important;
   margin: 20px 0 8px !important;
@@ -164,6 +177,85 @@ body {
   align-items: center;
 }
 
+/* ───── 푸터 ───── */
+.site-footer {
+  border-top: 1px solid #2a2a2a;
+  padding: 20px 0 12px;
+}
+
+.footer-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 8px;
+  color: #555;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: #e76e55;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #ff9980;
+}
+
+.footer-sep {
+  color: #333;
+}
+
+.terms-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: #888;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.terms-btn:hover {
+  color: #bbb;
+}
+
+/* ───── 이용약관 모달 ───── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 24px;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0 24px;
+  font-size: 9px;
+  line-height: 2;
+  color: #ccc;
+}
+
+.modal-close {
+  display: block;
+  margin: 0 auto;
+  font-size: 9px;
+}
+
 /* ───── 반응형 ───── */
 @media (max-width: 600px) {
   .total-score {
@@ -171,11 +263,19 @@ body {
   }
 
   .score-cards {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card-score {
+    font-size: 28px !important;
   }
 
   .commentary-body {
     flex-direction: column;
     align-items: center;
+  }
+
+  .chart-wrapper .recharts-responsive-container {
+    height: 200px !important;
   }
 }

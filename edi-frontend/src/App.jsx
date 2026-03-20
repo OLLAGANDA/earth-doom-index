@@ -34,9 +34,18 @@ function useDoomHistory() {
 
   useEffect(() => {
     fetch('/api/doom-history?days=30')
-      .then(res => res.ok ? res.json() : [])
+      .then(res => {
+        if (!res.ok) {
+          console.error(`doom-history fetch failed: ${res.status}`)
+          return []
+        }
+        return res.json()
+      })
       .then(json => setHistoryData(Array.isArray(json) ? json : []))
-      .catch(() => setHistoryData([]))
+      .catch(err => {
+        console.error('doom-history fetch error:', err)
+        setHistoryData([])
+      })
   }, [])
 
   return historyData
@@ -47,6 +56,13 @@ function scoreColor(score, max) {
   if (ratio >= 0.6) return 'is-error'
   if (ratio >= 0.3) return 'is-warning'
   return 'is-success'
+}
+
+function dangerLevel(score) {
+  if (score >= 70) return { label: 'CRITICAL', cls: 'is-error blink' }
+  if (score >= 50) return { label: 'DANGER',   cls: 'is-error' }
+  if (score >= 30) return { label: 'CAUTION',  cls: 'is-warning' }
+  return           { label: 'SAFE',     cls: 'is-success' }
 }
 
 
@@ -64,6 +80,7 @@ function App() {
   const { data, loading, error } = useDoomData()
   const historyData = useDoomHistory()
 
+  // historyData는 target_date 오름차순 정렬 기준 — 마지막 항목=오늘, 그 전=어제
   const yesterday = historyData.length >= 2 ? historyData[historyData.length - 2] : null
 
   function delta(todayVal, key) {
@@ -132,6 +149,10 @@ function App() {
           {data.total_score}
           <span className="score-max"> / 100</span>
         </p>
+        {(() => {
+          const { label, cls } = dangerLevel(data.total_score ?? 0)
+          return <p className={`danger-badge nes-text ${cls}`}>{label}</p>
+        })()}
         <p className="game-date">{dateStr}</p>
       </section>
 
