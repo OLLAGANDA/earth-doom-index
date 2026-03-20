@@ -265,6 +265,12 @@ body {
   font-size: 9px;
 }
 
+.card-info-source {
+  font-size: 9px !important;
+  color: #888;
+  margin-top: 12px !important;
+}
+
 /* ───── 반응형 ───── */
 @media (max-width: 600px) {
   .total-score {

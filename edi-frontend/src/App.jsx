@@ -66,6 +66,33 @@ function dangerLevel(score) {
 }
 
 
+const CARD_INFO = {
+  society: {
+    title: '🏙 SOCIETY',
+    desc: '사회 불안 지수. GDELT 뉴스 데이터를 기반으로 전 세계 사회적 갈등, 시위, 분쟁 이벤트의 빈도와 강도를 측정합니다.',
+    source: 'GDELT Project',
+    max: 30,
+  },
+  climate: {
+    title: '🌡 CLIMATE',
+    desc: '기후 위협 지수. OpenWeather API를 기반으로 극단적 기상 현상, 이상 기온, 폭풍 등의 위협 수준을 측정합니다.',
+    source: 'OpenWeather API',
+    max: 30,
+  },
+  economy: {
+    title: '📈 ECONOMY',
+    desc: '경제 위협 지수. 글로벌 금융 시장 지표를 기반으로 경기 침체, 시장 불안정성, 인플레이션 위험을 측정합니다.',
+    source: '경제 지표 API',
+    max: 30,
+  },
+  solar: {
+    title: '☀ SOLAR STORM',
+    desc: '태양 폭풍 지수. 태양 흑점 활동 및 지자기 폭풍 데이터를 기반으로 우주 기상이 지구에 미치는 위협을 측정합니다.',
+    source: 'NOAA / NASA',
+    max: 10,
+  },
+}
+
 function DeltaBadge({ value }) {
   if (value === null || value === undefined) return null
   if (value > 0) return <span className="card-delta delta-up">+{value} ▲</span>
@@ -96,6 +123,7 @@ function App() {
   }
 
   const [showTerms, setShowTerms] = useState(false)
+  const [selectedCard, setSelectedCard] = useState(null)
 
   if (loading) {
     return (
@@ -176,7 +204,11 @@ function App() {
 
       {/* 하단: 개별 지표 카드 4개 */}
       <section className="score-cards">
-        <div className="nes-container is-dark with-title score-card">
+        <div
+          className="nes-container is-dark with-title score-card"
+          onClick={() => setSelectedCard('society')}
+          style={{ cursor: 'pointer' }}
+        >
           <p className="title">🏙society</p>
           <p className={`card-score nes-text ${scoreColor(data.society_score, 30)}`}>
             {data.society_score}
@@ -185,7 +217,11 @@ function App() {
           <DeltaBadge value={delta(data.society_score, 'society_score')} />
         </div>
 
-        <div className="nes-container is-dark with-title score-card">
+        <div
+          className="nes-container is-dark with-title score-card"
+          onClick={() => setSelectedCard('climate')}
+          style={{ cursor: 'pointer' }}
+        >
           <p className="title">🌡climate</p>
           <p className={`card-score nes-text ${scoreColor(data.climate_score, 30)}`}>
             {data.climate_score}
@@ -194,7 +230,11 @@ function App() {
           <DeltaBadge value={delta(data.climate_score, 'climate_score')} />
         </div>
 
-        <div className="nes-container is-dark with-title score-card">
+        <div
+          className="nes-container is-dark with-title score-card"
+          onClick={() => setSelectedCard('economy')}
+          style={{ cursor: 'pointer' }}
+        >
           <p className="title">📈economy</p>
           <p className={`card-score nes-text ${scoreColor(data.economy_score, 30)}`}>
             {data.economy_score}
@@ -203,7 +243,11 @@ function App() {
           <DeltaBadge value={delta(data.economy_score, 'economy_score')} />
         </div>
 
-        <div className="nes-container is-dark with-title score-card">
+        <div
+          className="nes-container is-dark with-title score-card"
+          onClick={() => setSelectedCard('solar')}
+          style={{ cursor: 'pointer' }}
+        >
           <p className="title">☀SOLAR</p>
           <p className={`card-score nes-text ${scoreColor(data.solar_score, 10)}`}>
             {data.solar_score ?? 0}
@@ -233,6 +277,26 @@ function App() {
           <button className="terms-btn" onClick={() => setShowTerms(true)}>이용약관</button>
         </div>
       </footer>
+
+      {selectedCard && (
+        <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
+          <div className="modal-box nes-container is-dark" onClick={e => e.stopPropagation()}>
+            <p className="title">{CARD_INFO[selectedCard].title}</p>
+            <div className="modal-content">
+              <p>{CARD_INFO[selectedCard].desc}</p>
+              <p className="card-info-source">
+                출처: {CARD_INFO[selectedCard].source} &nbsp;|&nbsp; 최대: {CARD_INFO[selectedCard].max}점
+              </p>
+            </div>
+            <button
+              className="nes-btn is-error modal-close"
+              onClick={() => setSelectedCard(null)}
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
 
       {showTerms && (
         <div className="modal-overlay" onClick={() => setShowTerms(false)}>
