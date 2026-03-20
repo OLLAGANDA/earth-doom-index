@@ -1,0 +1,50 @@
+services:
+  edi-api:
+    build: .
+    container_name: edi-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000" # Cloudflare Tunnel이 바라볼 포트
+    environment:
+      - DB_HOST=edi-db
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - PORT=${PORT}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      edi-db:
+        condition: service_healthy
+
+  edi-db:
+    image: postgres:15-alpine
+    container_name: edi-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432" # 로컬 DB 툴 접속용 (서버 UFW로 외부 차단됨)
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - edi-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: edi-tunnel
+    restart: always
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - edi-api
+
+volumes:
+  edi-db-data:
+    name: edi-db-data # 도커 재시작 시에도 데이터 영구 보존

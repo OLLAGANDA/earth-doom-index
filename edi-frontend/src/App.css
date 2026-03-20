@@ -1,0 +1,181 @@
+/* nes.css가 Press Start 2P를 사용하므로 전체 폰트 적용 */
+* {
+  font-family: 'Press Start 2P', cursive !important;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #212529;
+  margin: 0;
+  padding-top: 46px;
+}
+
+/* ───── 상단 네비게이션 바 ───── */
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 46px;
+  background: #111;
+  border-bottom: 2px solid #e76e55;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-brand {
+  font-size: 9px;
+  color: #e76e55;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(231, 110, 85, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#root {
+  width: 100%;
+  max-width: 860px;
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  border: none;
+}
+
+/* ───── 로딩 / 에러 공통 ───── */
+.screen-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  text-align: center;
+}
+
+.sub-text {
+  font-size: 10px;
+  color: #aaa;
+  margin-top: 16px;
+  line-height: 1.8;
+}
+
+.blink {
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ───── 메인 레이아웃 ───── */
+.game-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* ───── 상단 타이틀 & 총점 ───── */
+.title-section {
+  text-align: center;
+  padding-top: 32px !important;
+  padding-bottom: 32px !important;
+}
+
+.game-subtitle {
+  font-size: 10px;
+  color: #aaa;
+  margin-bottom: 32px;
+  letter-spacing: 2px;
+}
+
+.total-score {
+  font-size: 56px !important;
+  line-height: 1.2;
+  margin: 16px 0 !important;
+}
+
+.score-max {
+  font-size: 20px;
+  color: #aaa;
+}
+
+.game-date {
+  font-size: 9px;
+  color: #666;
+  margin-top: 24px;
+}
+
+/* ───── AI 코멘터리 ───── */
+.commentary-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.commentary-icon {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.commentary-text {
+  font-size: 11px;
+  line-height: 2.2;
+  color: #e0e0e0;
+  text-align: left;
+  word-break: keep-all;
+}
+
+/* ───── 하단 지표 카드 ───── */
+.score-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.score-card {
+  text-align: center;
+}
+
+.card-score {
+  font-size: 36px !important;
+  margin: 20px 0 8px !important;
+  display: block;
+}
+
+.card-icon {
+  display: block;
+  margin: 12px auto 0;
+}
+
+.card-max {
+  font-size: 10px;
+  color: #666;
+}
+
+/* ───── 차트 ───── */
+.chart-toggle-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ───── 반응형 ───── */
+@media (max-width: 600px) {
+  .total-score {
+    font-size: 36px !important;
+  }
+
+  .score-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .commentary-body {
+    flex-direction: column;
+    align-items: center;
+  }
+}

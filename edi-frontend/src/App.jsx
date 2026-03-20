@@ -1,0 +1,167 @@
+import { useState, useEffect } from 'react'
+import './App.css'
+import DoomChart from './DoomChart.jsx'
+
+const API_URL = '/api/today-doom'
+
+function useDoomData() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchDoom = async () => {
+      try {
+        const res = await fetch(API_URL)
+        if (!res.ok) throw new Error(`서버 오류: ${res.status}`)
+        const json = await res.json()
+        setData(json)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDoom()
+  }, [])
+
+  return { data, loading, error }
+}
+
+function scoreColor(score, max) {
+  const ratio = score / max
+  if (ratio >= 0.6) return 'is-error'
+  if (ratio >= 0.3) return 'is-warning'
+  return 'is-success'
+}
+
+function TopNav() {
+  return (
+    <nav className="top-nav">
+      <span className="nav-brand">
+        EARTH DOOM INDEX
+      </span>
+    </nav>
+  )
+}
+
+function App() {
+  const { data, loading, error } = useDoomData()
+
+  if (loading) {
+    return (
+      <>
+        <TopNav />
+        <div className="screen-center">
+          <div className="nes-container is-dark">
+            <p className="nes-text is-primary blink">🌍 LOADING...</p>
+            <p className="sub-text">지구 멸망 지수 계산 중</p>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <>
+        <TopNav />
+        <div className="screen-center">
+          <div className="nes-container is-dark is-rounded">
+            <p className="nes-text is-error">⚠ SYSTEM ERROR</p>
+            <p className="sub-text">{error}</p>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  if (data?.message) {
+    return (
+      <>
+        <TopNav />
+        <div className="screen-center">
+          <div className="nes-container is-dark">
+            <p className="nes-text is-warning">NO DATA</p>
+            <p className="sub-text">{data.message}</p>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  const totalColor = scoreColor(data.total_score, 100)
+  const dateStr = new Date(data.target_date).toLocaleDateString('ko-KR')
+
+  return (
+    <>
+    <TopNav />
+    <div className="game-screen">
+
+      {/* 상단: 타이틀 + 총점 */}
+      <section className="nes-container is-dark with-title title-section">
+        <p className="title">EARTH DOOM INDEX</p>
+        <p className="game-subtitle">지구 멸망 지수</p>
+        <p className={`total-score nes-text ${totalColor}`}>
+          {data.total_score}
+          <span className="score-max"> / 100</span>
+        </p>
+        <p className="game-date">{dateStr}</p>
+      </section>
+
+      {/* 중단: AI 코멘터리 대화창 */}
+      <section className="commentary-section">
+        <div className="nes-container is-dark with-title">
+          <p className="title">💬 AI COMMENTARY</p>
+          <div className="commentary-body">
+            <i className="nes-octocat is-small commentary-icon" />
+            <p className="commentary-text">{data.ai_commentary}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 하단: 개별 지표 카드 4개 */}
+      <section className="score-cards">
+        <div className="nes-container is-dark with-title score-card">
+          <p className="title">🏙society</p>
+          <p className={`card-score nes-text ${scoreColor(data.society_score, 30)}`}>
+            {data.society_score}
+          </p>
+          <p className="card-max">/ 30</p>
+        </div>
+
+        <div className="nes-container is-dark with-title score-card">
+          <p className="title">🌡climate</p>
+          <p className={`card-score nes-text ${scoreColor(data.climate_score, 30)}`}>
+            {data.climate_score}
+          </p>
+          <p className="card-max">/ 30</p>
+        </div>
+
+        <div className="nes-container is-dark with-title score-card">
+          <p className="title">📈economy</p>
+          <p className={`card-score nes-text ${scoreColor(data.economy_score, 30)}`}>
+            {data.economy_score}
+          </p>
+          <p className="card-max">/ 30</p>
+        </div>
+
+        <div className="nes-container is-dark with-title score-card">
+          <p className="title">☀SOLAR STORM</p>
+          <p className={`card-score nes-text ${scoreColor(data.solar_score, 10)}`}>
+            {data.solar_score ?? 0}
+          </p>
+          <p className="card-max">/ 10</p>
+        </div>
+      </section>
+
+      {/* 트렌드 차트 */}
+      <DoomChart />
+
+    </div>
+    </>
+  )
+}
+
+export default App
