@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import DoomChart from './DoomChart.jsx'
 
-const API_URL = '/api/today-doom'
+const BASE_URL = import.meta.env.VITE_API_URL ?? ''
+const API_URL = `${BASE_URL}/api/today-doom`
 
 function useDoomData() {
   const [data, setData] = useState(null)
@@ -33,7 +34,7 @@ function useDoomHistory() {
   const [historyData, setHistoryData] = useState([])
 
   useEffect(() => {
-    fetch('/api/doom-history?days=30')
+    fetch(`${BASE_URL}/api/doom-history?days=30`)
       .then(res => {
         if (!res.ok) {
           console.error(`doom-history fetch failed: ${res.status}`)
