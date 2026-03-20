@@ -22,7 +22,7 @@ services:
     container_name: edi-db
     restart: unless-stopped
     ports:
-      - "5432:5432" # 로컬 DB 툴 접속용 (서버 UFW로 외부 차단됨)
+      - "5433:5432" # 로컬 DB 툴 접속용 (서버 UFW로 외부 차단됨)
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
