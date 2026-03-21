@@ -280,6 +280,8 @@ function App() {
           <span>© 2026 EARTH DOOM INDEX</span>
           <span className="footer-sep">|</span>
           <button className="terms-btn" onClick={() => setShowTerms(true)}>이용약관</button>
+          <span className="footer-sep">|</span>
+          <a href="mailto:dev782108@gmail.com" className="footer-link">CONTACT</a>
         </div>
       </footer>
 
