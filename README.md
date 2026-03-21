@@ -53,7 +53,8 @@ Cloudflare Tunnel을 통해 외부에 안전하게 노출되며, DB 포트(5432)
 - **Database** : PostgreSQL 15
 - **AI** : Google Gemini API (`@google/genai`)
 - **스케줄러** : node-cron (매일 UTC 00:01)
-- **인프라** : Docker Compose + Cloudflare Tunnel
+- **백엔드 인프라** : Docker Compose + Cloudflare Tunnel
+- **프론트엔드 배포** : React + Vite, Vercel
 
 ---
 
