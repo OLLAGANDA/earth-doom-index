@@ -305,7 +305,6 @@ function VoteSection({ todayDoomDate, lang }) {
         <YesterdayResult y={yesterday} t={t} />
         <section className="nes-container is-dark with-title vote-section">
           <p className="title">🎰 {t.title}</p>
-          <VoteTimerChip {...countdown} />
           <div className="vote-result-body">
             <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
             <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
