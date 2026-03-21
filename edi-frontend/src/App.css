@@ -202,6 +202,13 @@ body {
 /* ───── 투표 섹션 ───── */
 .vote-section {
   margin-bottom: 16px;
+  position: relative;
+}
+
+.vote-section > .vote-timer-chip {
+  position: absolute;
+  top: -4px;
+  right: 8px;
 }
 
 .vote-question {
