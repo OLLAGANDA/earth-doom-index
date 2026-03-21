@@ -27,6 +27,16 @@
 
 ---
 
+## 투표 시스템
+
+매일 UTC 00:05 ~ 23:58, 사용자는 **내일 멸망 지수가 오를지/유지될지/내릴지** 익명으로 투표할 수 있습니다.
+
+- 투표는 재선택 가능 (변경 시 이전 투표 자동 취소)
+- 투표 결과는 다음 날 실제 점수 변동과 대조해 공개
+- 로그인 없음, 계정 없음 — 브라우저 로컬스토리지로 중복 방지
+
+---
+
 ## 아키텍처
 
 ```
@@ -38,8 +48,11 @@ Yahoo Finance   ──┤   (병렬수집)    (매일 00:01)
 NOAA SWPC       ──┘                    ↓
 Gemini API      ──────────────→  AI Commentary
                                        ↓
-                               Express Routes  →  GET /api/today-doom
-                                                   GET /api/doom-history
+                               Express Routes  →  GET  /api/today-doom
+                                                   GET  /api/doom-history
+                                                   GET  /api/vote/today
+                                                   POST /api/vote
+                                                   DEL  /api/vote
 ```
 
 Cloudflare Tunnel을 통해 외부에 안전하게 노출되며, DB 포트(5432)는 UFW로 외부 차단됩니다.
@@ -96,6 +109,9 @@ API 서버(3000)와 PostgreSQL, Cloudflare Tunnel이 함께 시작됩니다.
 |--------|------|------|
 | `GET` | `/api/today-doom` | 가장 최근에 계산된 멸망 지수 1건 |
 | `GET` | `/api/doom-history?days=N` | 최근 N일 이력 (기본 7일, 최대 30일) |
+| `GET` | `/api/vote/today` | 오늘 투표 현황 + 어제 예측 결과 |
+| `POST` | `/api/vote` | 투표 (`{ direction: "up"\|"flat"\|"down", target_date }`) |
+| `DELETE` | `/api/vote` | 투표 취소 (`{ direction, target_date }`) |
 
 ---
 
