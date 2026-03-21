@@ -68,13 +68,12 @@ function dangerLevel(score) {
 }
 
 // todayDoomDate: data.target_date (서버 기준 오늘 날짜, 'YYYY-MM-DD')
-// 반환: 'pending' | 'open' | 'closed' | 'result'
+// 반환: 'pending' | 'open' | 'closed'
 function getVotePhase(todayDoomDate) {
   const now = new Date()
   const todayUTC = now.toISOString().slice(0, 10)
 
   if (todayDoomDate < todayUTC) return 'pending'   // 새 점수 미계산
-  if (todayDoomDate > todayUTC) return 'result'    // 다음날 이후
 
   // todayDoomDate === todayUTC
   const utcHour = now.getUTCHours()
@@ -188,6 +187,27 @@ function VoteBar({ label, count, total, isMyVote }) {
   )
 }
 
+function YesterdayResult({ y, t }) {
+  if (!y) return null
+  const yTotal = y.up + y.flat + y.down
+  const pct = (dir) => yTotal > 0 ? Math.round((y[dir] / yTotal) * 100) : 0
+  return (
+    <section className="nes-container is-dark with-title vote-section">
+      <p className="title">📊 {t.resultTitle}</p>
+      <div className="vote-result-body">
+        <p className="vote-result-summary">
+          {y.prediction === 'up' ? `▲ UP ${pct('up')}%` : y.prediction === 'flat' ? `— FLAT ${pct('flat')}%` : `▽ DOWN ${pct('down')}%`}
+          {' → '}
+          {y.actual === 'up' ? '▲ UP' : y.actual === 'flat' ? '— FLAT' : y.actual === 'down' ? '▽ DOWN' : '—'}
+        </p>
+        <p className={`vote-result-verdict nes-text ${y.correct ? 'is-success' : 'is-error'}`}>
+          {y.correct === true ? `✓ ${t.correct}` : y.correct === false ? `✗ ${t.wrong}` : '—'}
+        </p>
+      </div>
+    </section>
+  )
+}
+
 function VoteSection({ todayDoomDate, lang }) {
   const t = translations[lang].vote
   const { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading } = useVote(todayDoomDate)
@@ -196,99 +216,70 @@ function VoteSection({ todayDoomDate, lang }) {
 
   const counts = voteData ?? { up: 0, flat: 0, down: 0 }
   const total = (counts.up ?? 0) + (counts.flat ?? 0) + (counts.down ?? 0)
+  const yesterday = voteData?.yesterday ?? null
 
-  // 결과 표시 (phase=result) — 어제 결과 + 오늘 새 투표 버튼 함께 표시
-  if (phase === 'result') {
-    const y = voteData?.yesterday
-    const pct = (dir) => y && (y.up + y.flat + y.down) > 0
-      ? Math.round((y[dir] / (y.up + y.flat + y.down)) * 100)
-      : 0
+  // 투표 마감 (phase=closed)
+  if (phase === 'closed') {
     return (
       <>
-        <section className="nes-container is-dark with-title vote-section">
-          <p className="title">📊 {t.resultTitle}</p>
-          {y ? (
-            <div className="vote-result-body">
-              <p className="vote-result-summary">
-                {y.prediction === 'up' ? `▲ UP ${pct('up')}%` : y.prediction === 'flat' ? `— FLAT ${pct('flat')}%` : `▽ DOWN ${pct('down')}%`}
-                {' → '}
-                {y.actual === 'up' ? '▲ UP' : y.actual === 'flat' ? '— FLAT' : y.actual === 'down' ? '▽ DOWN' : '—'}
-              </p>
-              <p className={`vote-result-verdict nes-text ${y.correct ? 'is-success' : 'is-error'}`}>
-                {y.correct === true ? `✓ ${t.correct}` : y.correct === false ? `✗ ${t.wrong}` : '—'}
-              </p>
-            </div>
-          ) : (
-            <p className="vote-no-data">—</p>
-          )}
-        </section>
-        {/* 오늘 새 투표 UI (phase=result이면서 오늘 투표 가능 시간대) */}
+        <YesterdayResult y={yesterday} t={t} />
         <section className="nes-container is-dark with-title vote-section">
           <p className="title">🎰 {t.title}</p>
-          <p className="vote-question">{t.question}</p>
-          <div className="vote-buttons">
-            <button className={`nes-btn ${myVote === 'up' ? 'is-primary' : ''} vote-btn`} onClick={() => castVote('up')}>▲ UP</button>
-            <button className={`nes-btn ${myVote === 'flat' ? 'is-primary' : ''} vote-btn`} onClick={() => castVote('flat')}>— FLAT</button>
-            <button className={`nes-btn ${myVote === 'down' ? 'is-primary' : ''} vote-btn`} onClick={() => castVote('down')}>▽ DOWN</button>
+          <div className="vote-closed-body">
+            <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
+            <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
+            <VoteBar label="▽ DOWN" count={counts.down} total={total} isMyVote={myVote === 'down'} />
+            <p className="vote-closed-msg nes-text is-warning">{t.closed}</p>
           </div>
         </section>
       </>
     )
   }
 
-  // 투표 마감 (phase=closed)
-  if (phase === 'closed') {
-    return (
-      <section className="nes-container is-dark with-title vote-section">
-        <p className="title">🎰 {t.title}</p>
-        <div className="vote-closed-body">
-          <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
-          <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
-          <VoteBar label="▽ DOWN" count={counts.down} total={total} isMyVote={myVote === 'down'} />
-          <p className="vote-closed-msg nes-text is-warning">{t.closed}</p>
-        </div>
-      </section>
-    )
-  }
-
   // 투표 후 결과 뷰 (phase=open, myVote 있음, showBallot=false)
   if (myVote && !showBallot) {
     return (
-      <section className="nes-container is-dark with-title vote-section">
-        <p className="title">🎰 {t.title}</p>
-        <div className="vote-result-body">
-          <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
-          <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
-          <VoteBar label="▽ DOWN" count={counts.down} total={total} isMyVote={myVote === 'down'} />
-          <p className="vote-total">{t.totalVoters(total)}</p>
-          <button className="nes-btn is-warning vote-change-btn" onClick={() => setShowBallot(true)}>
-            {t.changeVote}
-          </button>
-        </div>
-      </section>
+      <>
+        <YesterdayResult y={yesterday} t={t} />
+        <section className="nes-container is-dark with-title vote-section">
+          <p className="title">🎰 {t.title}</p>
+          <div className="vote-result-body">
+            <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
+            <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
+            <VoteBar label="▽ DOWN" count={counts.down} total={total} isMyVote={myVote === 'down'} />
+            <p className="vote-total">{t.totalVoters(total)}</p>
+            <button className="nes-btn is-warning vote-change-btn" onClick={() => setShowBallot(true)}>
+              {t.changeVote}
+            </button>
+          </div>
+        </section>
+      </>
     )
   }
 
   // 투표 전 / 재투표 화면 (phase=open)
   return (
-    <section className="nes-container is-dark with-title vote-section">
-      <p className="title">🎰 {t.title}</p>
-      <p className="vote-question">{t.question}</p>
-      <div className="vote-buttons">
-        <button
-          className={`nes-btn ${myVote === 'up' ? 'is-primary' : ''} vote-btn`}
-          onClick={() => castVote('up')}
-        >▲ UP</button>
-        <button
-          className={`nes-btn ${myVote === 'flat' ? 'is-primary' : ''} vote-btn`}
-          onClick={() => castVote('flat')}
-        >— FLAT</button>
-        <button
-          className={`nes-btn ${myVote === 'down' ? 'is-primary' : ''} vote-btn`}
-          onClick={() => castVote('down')}
-        >▽ DOWN</button>
-      </div>
-    </section>
+    <>
+      <YesterdayResult y={yesterday} t={t} />
+      <section className="nes-container is-dark with-title vote-section">
+        <p className="title">🎰 {t.title}</p>
+        <p className="vote-question">{t.question}</p>
+        <div className="vote-buttons">
+          <button
+            className={`nes-btn ${myVote === 'up' ? 'is-primary' : ''} vote-btn`}
+            onClick={() => castVote('up')}
+          >▲ UP</button>
+          <button
+            className={`nes-btn ${myVote === 'flat' ? 'is-primary' : ''} vote-btn`}
+            onClick={() => castVote('flat')}
+          >— FLAT</button>
+          <button
+            className={`nes-btn ${myVote === 'down' ? 'is-primary' : ''} vote-btn`}
+            onClick={() => castVote('down')}
+          >▽ DOWN</button>
+        </div>
+      </section>
+    </>
   )
 }
 
