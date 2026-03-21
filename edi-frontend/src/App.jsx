@@ -163,7 +163,7 @@ function App() {
         <div className="screen-center">
           <div className="nes-container is-dark">
             <p className="nes-text is-warning">{t.noData}</p>
-            <p className="sub-text">{data.message}</p>
+            <p className="sub-text">{t.noDataSub}</p>
           </div>
         </div>
       </>

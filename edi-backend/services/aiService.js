@@ -74,19 +74,6 @@ Score ${totalScore ?? '?'} — ${toneGuide}
 `.trim();
 };
 
-const generateCommentary = async (scoreData) => {
-  try {
-    const response = await ai.models.generateContent({
-      model: MODEL,
-      contents: buildPrompt(scoreData),
-    });
-    return response.text;
-  } catch (error) {
-    console.error('AI 코멘터리 생성 실패:', error.message);
-    return null;
-  }
-};
-
 const generateCommentaries = async (scoreData) => {
   const [ko, en] = await Promise.all([
     (async () => {
@@ -117,4 +104,4 @@ const generateCommentaries = async (scoreData) => {
   return { ko, en };
 };
 
-module.exports = { generateCommentary, generateCommentaries };
+module.exports = { generateCommentaries };
