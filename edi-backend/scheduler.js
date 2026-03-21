@@ -7,7 +7,7 @@ const { calculateSocietyScore } = require('./services/societyService');
 const { calculateClimateScore } = require('./services/climateService');
 const { calculateEconomyScore } = require('./services/economyService');
 const { calculateSolarScore } = require('./services/solarService');
-const { generateCommentary } = require('./services/aiService');
+const { generateCommentaries } = require('./services/aiService');
 const { saveDoomRecord } = require('./db');
 
 // 4개 지표를 병렬 수집 → 점수 합산 → AI 코멘터리 → DB 저장
@@ -28,7 +28,7 @@ const runDoomCalculation = async ({ dryRun = false } = {}) => {
     economyData.economyScore +
     solarData.solarScore;
 
-  const commentary = await generateCommentary({
+  const { ko: commentary, en: commentaryEn } = await generateCommentaries({
     totalScore,
     societySummary: societyData.summary,
     climateSummary: climateData.summary,
@@ -40,7 +40,8 @@ const runDoomCalculation = async ({ dryRun = false } = {}) => {
 
   if (dryRun) {
     console.log(`[${new Date().toISOString()}] 🧪 DRY RUN 완료. Date: ${targetDate}, Score: ${totalScore}/100`);
-    console.log(`\n💬 AI Commentary:\n${commentary}`);
+    console.log(`\n💬 AI Commentary (KO):\n${commentary}`);
+    console.log(`\n💬 AI Commentary (EN):\n${commentaryEn}`);
     return;
   }
 
@@ -52,6 +53,7 @@ const runDoomCalculation = async ({ dryRun = false } = {}) => {
     solarScore: solarData.solarScore,
     totalScore,
     commentary,
+    commentaryEn,
   });
 
   console.log(`[${new Date().toISOString()}] ✅ Doom Record Saved! Date: ${targetDate}, Score: ${totalScore}/100`);
