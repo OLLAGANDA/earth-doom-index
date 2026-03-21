@@ -307,4 +307,21 @@ body {
   .chart-wrapper .recharts-responsive-container {
     height: 200px !important;
   }
+
+  .modal-overlay {
+    padding: 12px;
+    overflow-x: hidden;
+  }
+
+  .modal-box {
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
+    max-height: 85dvh;
+    overflow: unset;
+  }
+
+  .modal-content {
+    overflow-y: auto;
+    overflow-wrap: break-word;
+  }
 }
