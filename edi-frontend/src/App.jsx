@@ -159,38 +159,38 @@ function useVote(todayDoomDate) {
   return { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading }
 }
 
+function computeVoteCountdown(todayDoomDate) {
+  if (!todayDoomDate) return { label: null, time: null, urgent: false }
+  const now = new Date()
+  const todayUTC = now.toISOString().slice(0, 10)
+  const dateStr = todayDoomDate.slice(0, 10)
+
+  if (dateStr < todayUTC) return { label: null, time: null, urgent: false }
+
+  const phase = getVotePhase(dateStr)
+  if (phase === 'closed') return { label: null, time: null, urgent: false }
+
+  const target = phase === 'pending'
+    ? new Date(`${dateStr}T00:05:00Z`)
+    : new Date(`${dateStr}T23:59:00Z`)
+  const label = phase === 'pending' ? 'OPENS IN' : 'VOTE CLOSES IN'
+
+  const secsLeft = Math.floor((target - now) / 1000)
+  if (secsLeft <= 0) return { label: null, time: null, urgent: false }
+
+  const h = String(Math.floor(secsLeft / 3600)).padStart(2, '0')
+  const m = String(Math.floor((secsLeft % 3600) / 60)).padStart(2, '0')
+  const s = String(secsLeft % 60).padStart(2, '0')
+
+  return { label, time: `${h}:${m}:${s}`, urgent: phase === 'open' && secsLeft < 3600 }
+}
+
 function useVoteCountdown(todayDoomDate) {
-  function compute() {
-    if (!todayDoomDate) return { label: null, time: null, urgent: false }
-    const now = new Date()
-    const todayUTC = now.toISOString().slice(0, 10)
-    const dateStr = todayDoomDate.slice(0, 10)
-
-    if (dateStr < todayUTC) return { label: null, time: null, urgent: false }
-
-    const phase = getVotePhase(dateStr)
-    if (phase === 'closed') return { label: null, time: null, urgent: false }
-
-    const target = phase === 'pending'
-      ? new Date(`${dateStr}T00:05:00Z`)
-      : new Date(`${dateStr}T23:59:00Z`)
-    const label = phase === 'pending' ? 'OPENS IN' : 'VOTE CLOSES IN'
-
-    const secsLeft = Math.floor((target - now) / 1000)
-    if (secsLeft <= 0) return { label: null, time: null, urgent: false }
-
-    const h = String(Math.floor(secsLeft / 3600)).padStart(2, '0')
-    const m = String(Math.floor((secsLeft % 3600) / 60)).padStart(2, '0')
-    const s = String(secsLeft % 60).padStart(2, '0')
-
-    return { label, time: `${h}:${m}:${s}`, urgent: phase === 'open' && secsLeft < 3600 }
-  }
-
-  const [countdown, setCountdown] = useState(compute)
+  const [countdown, setCountdown] = useState(() => computeVoteCountdown(todayDoomDate))
 
   useEffect(() => {
     if (!todayDoomDate) return
-    const id = setInterval(() => setCountdown(compute()), 1000)
+    const id = setInterval(() => setCountdown(computeVoteCountdown(todayDoomDate)), 1000)
     return () => clearInterval(id)
   }, [todayDoomDate])
 
