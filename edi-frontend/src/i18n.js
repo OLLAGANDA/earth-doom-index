@@ -35,6 +35,7 @@ export const translations = {
       '4. 서비스는 예고 없이 변경되거나 종료될 수 있습니다.',
       '5. 진지하게 받아들이지 마세요. 지구는 (아마도) 괜찮습니다.',
     ],
+    // Pixel font (Press Start 2P) does not support Korean glyphs — vote UI strings are intentionally English for both locales.
     vote: {
       title: 'TOMORROW\'S PREDICTION',
       question: 'TOMORROW\'S DOOM?',
