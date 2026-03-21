@@ -73,7 +73,7 @@ const calculateSolarScore = async () => {
     const flareScore = xrayToScore(maxFlux);
     const flareLabel = xrayToLabel(maxFlux);
 
-    const totalScore = parseFloat(Math.min(kpScore + flareScore, 10).toFixed(1));
+    const totalScore = Math.round(Math.min(kpScore + flareScore, 10));
 
     console.log(`☀️  Kp 지수: ${kp.toFixed(1)} — ${kpLabel} (${kpScore}점)`);
     if (flareLabel) {

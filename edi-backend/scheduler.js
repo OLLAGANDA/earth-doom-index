@@ -11,8 +11,9 @@ const { generateCommentary } = require('./services/aiService');
 const { saveDoomRecord } = require('./db');
 
 // 4개 지표를 병렬 수집 → 점수 합산 → AI 코멘터리 → DB 저장
-const runDoomCalculation = async () => {
-  console.log(`[${new Date().toISOString()}] 🚨 Doom Calculation Started!`);
+// dryRun=true 시 계산만 수행하고 DB 저장을 건너뜁니다.
+const runDoomCalculation = async ({ dryRun = false } = {}) => {
+  console.log(`[${new Date().toISOString()}] 🚨 Doom Calculation Started!${dryRun ? ' (DRY RUN — DB 저장 안 함)' : ''}`);
 
   const [societyData, climateData, economyData, solarData] = await Promise.all([
     calculateSocietyScore(),
@@ -36,6 +37,11 @@ const runDoomCalculation = async () => {
   });
 
   const targetDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+  if (dryRun) {
+    console.log(`[${new Date().toISOString()}] 🧪 DRY RUN 완료. Date: ${targetDate}, Score: ${totalScore}/100`);
+    return;
+  }
 
   await saveDoomRecord({
     targetDate,

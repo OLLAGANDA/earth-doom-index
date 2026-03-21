@@ -7,7 +7,7 @@ const { runDoomCalculation } = require('./scheduler');
 const { pool } = require('./db');
 
 console.log('🌍 지구 멸망 지수(EDI) 데이터 수집 테스트 시작...\n');
-runDoomCalculation()
+runDoomCalculation({ dryRun: true })
   .catch((error) => {
     console.error('테스트 중 에러 발생:', error);
   })
