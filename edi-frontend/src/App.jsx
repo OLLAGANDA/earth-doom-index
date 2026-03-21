@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import DoomChart from './DoomChart.jsx'
+// eslint-disable-next-line no-unused-vars
+import { translations } from './i18n.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''
 const API_URL = `${BASE_URL}/api/today-doom`
@@ -67,6 +69,20 @@ function dangerLevel(score) {
 }
 
 
+function useLang() {
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem('edi-lang')
+    if (saved === 'ko' || saved === 'en') return saved
+    return navigator.language.startsWith('ko') ? 'ko' : 'en'
+  })
+  const toggle = () => setLang(l => {
+    const next = l === 'ko' ? 'en' : 'ko'
+    localStorage.setItem('edi-lang', next)
+    return next
+  })
+  return { lang, toggle }
+}
+
 const CARD_INFO = {
   society: {
     title: '🏙 SOCIETY',
@@ -101,12 +117,17 @@ function DeltaBadge({ value }) {
   return <span className="card-delta delta-zero">±0</span>
 }
 
-function TopNav() {
+function TopNav({ lang, onToggle }) {
   return (
     <nav className="top-nav">
       <span className="nav-brand">
         EARTH DOOM INDEX
       </span>
+      <button className="lang-toggle" onClick={onToggle}>
+        <span className={lang === 'ko' ? 'nes-text is-primary' : ''}>KO</span>
+        {' / '}
+        <span className={lang === 'en' ? 'nes-text is-primary' : ''}>EN</span>
+      </button>
     </nav>
   )
 }
@@ -114,6 +135,7 @@ function TopNav() {
 function App() {
   const { data, loading, error } = useDoomData()
   const historyData = useDoomHistory()
+  const { lang, toggle } = useLang()
 
   // historyData는 target_date 오름차순 정렬 기준 — 마지막 항목=오늘, 그 전=어제
   const yesterday = historyData.length >= 2 ? historyData[historyData.length - 2] : null
@@ -129,7 +151,7 @@ function App() {
   if (loading) {
     return (
       <>
-        <TopNav />
+        <TopNav lang={lang} onToggle={toggle} />
         <div className="screen-center">
           <div className="nes-container is-dark">
             <p className="nes-text is-primary blink">🌍 LOADING...</p>
@@ -143,7 +165,7 @@ function App() {
   if (error) {
     return (
       <>
-        <TopNav />
+        <TopNav lang={lang} onToggle={toggle} />
         <div className="screen-center">
           <div className="nes-container is-dark is-rounded">
             <p className="nes-text is-error">⚠ SYSTEM ERROR</p>
@@ -157,7 +179,7 @@ function App() {
   if (data?.message) {
     return (
       <>
-        <TopNav />
+        <TopNav lang={lang} onToggle={toggle} />
         <div className="screen-center">
           <div className="nes-container is-dark">
             <p className="nes-text is-warning">NO DATA</p>
@@ -175,7 +197,7 @@ function App() {
 
   return (
     <>
-    <TopNav />
+    <TopNav lang={lang} onToggle={toggle} />
     <div className="game-screen">
 
       {/* 상단: 타이틀 + 총점 */}

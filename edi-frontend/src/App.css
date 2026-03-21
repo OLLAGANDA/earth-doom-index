@@ -23,6 +23,23 @@ body {
   padding: 0 20px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.lang-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--color-text, #fff);
+  padding: 0;
+  letter-spacing: 0.05em;
+  margin-left: auto;
+}
+
+.lang-toggle:hover {
+  opacity: 0.8;
 }
 
 .nav-brand {
