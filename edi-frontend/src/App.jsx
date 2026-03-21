@@ -225,6 +225,16 @@ function VoteBar({ label, count, total, isMyVote }) {
   )
 }
 
+function VoteTimerChip({ label, time, urgent }) {
+  if (!label) return null
+  return (
+    <div className={`vote-timer-chip${urgent ? ' warn' : ''}`}>
+      <span className="vote-timer-label">{label}</span>
+      <span className="vote-timer-time">{time}</span>
+    </div>
+  )
+}
+
 function YesterdayResult({ y, t }) {
   if (!y) return null
   const yTotal = y.up + y.flat + y.down
