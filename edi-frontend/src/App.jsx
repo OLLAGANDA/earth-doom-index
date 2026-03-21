@@ -259,8 +259,22 @@ function YesterdayResult({ y, t }) {
 function VoteSection({ todayDoomDate, lang }) {
   const t = translations[lang].vote
   const { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading } = useVote(todayDoomDate)
+  const countdown = useVoteCountdown(todayDoomDate)
 
-  if (!phase || phase === 'pending' || loading) return null
+  if (!phase || (phase === 'pending' && countdown.label === null) || loading) return null
+
+  // 투표 오픈 대기 (오늘 pending, UTC 00:00~00:04)
+  if (phase === 'pending') {
+    return (
+      <section className="nes-container is-dark with-title vote-section">
+        <p className="title">🎰 {t.title}</p>
+        <div className="vote-question-row">
+          <p className="vote-question">{t.question}</p>
+          <VoteTimerChip {...countdown} />
+        </div>
+      </section>
+    )
+  }
 
   const counts = voteData ?? { up: 0, flat: 0, down: 0 }
   const total = (counts.up ?? 0) + (counts.flat ?? 0) + (counts.down ?? 0)
@@ -292,6 +306,7 @@ function VoteSection({ todayDoomDate, lang }) {
         <section className="nes-container is-dark with-title vote-section">
           <p className="title">🎰 {t.title}</p>
           <div className="vote-result-body">
+            <VoteTimerChip {...countdown} />
             <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
             <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
             <VoteBar label="▽ DOWN" count={counts.down} total={total} isMyVote={myVote === 'down'} />
@@ -311,7 +326,10 @@ function VoteSection({ todayDoomDate, lang }) {
       <YesterdayResult y={yesterday} t={t} />
       <section className="nes-container is-dark with-title vote-section">
         <p className="title">🎰 {t.title}</p>
-        <p className="vote-question">{t.question}</p>
+        <div className="vote-question-row">
+          <p className="vote-question">{t.question}</p>
+          <VoteTimerChip {...countdown} />
+        </div>
         <div className="vote-buttons">
           <button
             className={`nes-btn ${myVote === 'up' ? 'is-primary' : ''} vote-btn`}
