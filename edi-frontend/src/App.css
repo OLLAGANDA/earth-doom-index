@@ -199,6 +199,114 @@ body {
   align-items: center;
 }
 
+/* ───── 투표 섹션 ───── */
+.vote-section {
+  margin-bottom: 16px;
+}
+
+.vote-question {
+  font-size: 9px !important;
+  color: #aaa;
+  margin-bottom: 16px !important;
+}
+
+.vote-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.vote-btn {
+  font-size: 9px !important;
+  min-width: 72px;
+}
+
+/* 투표 결과 바 */
+.vote-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 8px !important;
+}
+
+.vote-bar-label {
+  width: 52px;
+  flex-shrink: 0;
+  color: #ccc;
+}
+
+.vote-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #333;
+  border: 1px solid #555;
+}
+
+.vote-bar-fill {
+  height: 100%;
+  background: #e76e55;
+  transition: width 0.3s ease;
+}
+
+.vote-bar-pct {
+  width: 32px;
+  text-align: right;
+  color: #aaa;
+}
+
+.vote-bar-mark {
+  color: #92cc41;
+  flex-shrink: 0;
+}
+
+.vote-bar-mine .vote-bar-label {
+  color: #92cc41;
+}
+
+.vote-total {
+  font-size: 8px !important;
+  color: #888;
+  margin-top: 8px !important;
+  text-align: right;
+}
+
+.vote-change-btn {
+  font-size: 8px !important;
+  margin-top: 12px;
+  display: block;
+  width: 100%;
+}
+
+.vote-closed-msg {
+  font-size: 8px !important;
+  margin-top: 12px !important;
+  letter-spacing: 1px;
+}
+
+.vote-result-summary {
+  font-size: 9px !important;
+  color: #ccc;
+  margin-bottom: 8px !important;
+}
+
+.vote-result-verdict {
+  font-size: 11px !important;
+  letter-spacing: 2px;
+}
+
+/* 모바일 */
+@media (max-width: 600px) {
+  .vote-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .vote-btn {
+    width: 100%;
+  }
+}
+
 /* ───── 푸터 ───── */
 .site-footer {
   border-top: 1px solid #2a2a2a;
