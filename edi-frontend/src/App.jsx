@@ -207,11 +207,13 @@ function App() {
           style={{ cursor: 'pointer' }}
         >
           <p className="title">🏙society</p>
-          <p className={`card-score nes-text ${scoreColor(data.society_score, 30)}`}>
-            {data.society_score}
-          </p>
-          <p className="card-max">/ 30</p>
-          <DeltaBadge value={delta(data.society_score, 'society_score')} />
+          <div className="card-right">
+            <p className={`card-score nes-text ${scoreColor(data.society_score, 30)}`}>
+              {data.society_score}
+            </p>
+            <p className="card-max">/ 30</p>
+            <DeltaBadge value={delta(data.society_score, 'society_score')} />
+          </div>
         </div>
 
         <div
@@ -220,11 +222,13 @@ function App() {
           style={{ cursor: 'pointer' }}
         >
           <p className="title">🌡climate</p>
-          <p className={`card-score nes-text ${scoreColor(data.climate_score, 30)}`}>
-            {data.climate_score}
-          </p>
-          <p className="card-max">/ 30</p>
-          <DeltaBadge value={delta(data.climate_score, 'climate_score')} />
+          <div className="card-right">
+            <p className={`card-score nes-text ${scoreColor(data.climate_score, 30)}`}>
+              {data.climate_score}
+            </p>
+            <p className="card-max">/ 30</p>
+            <DeltaBadge value={delta(data.climate_score, 'climate_score')} />
+          </div>
         </div>
 
         <div
@@ -233,11 +237,13 @@ function App() {
           style={{ cursor: 'pointer' }}
         >
           <p className="title">📈economy</p>
-          <p className={`card-score nes-text ${scoreColor(data.economy_score, 30)}`}>
-            {data.economy_score}
-          </p>
-          <p className="card-max">/ 30</p>
-          <DeltaBadge value={delta(data.economy_score, 'economy_score')} />
+          <div className="card-right">
+            <p className={`card-score nes-text ${scoreColor(data.economy_score, 30)}`}>
+              {data.economy_score}
+            </p>
+            <p className="card-max">/ 30</p>
+            <DeltaBadge value={delta(data.economy_score, 'economy_score')} />
+          </div>
         </div>
 
         <div
@@ -246,11 +252,13 @@ function App() {
           style={{ cursor: 'pointer' }}
         >
           <p className="title">☀SOLAR</p>
-          <p className={`card-score nes-text ${scoreColor(data.solar_score, 10)}`}>
-            {data.solar_score ?? 0}
-          </p>
-          <p className="card-max">/ 10</p>
-          <DeltaBadge value={delta(data.solar_score, 'solar_score')} />
+          <div className="card-right">
+            <p className={`card-score nes-text ${scoreColor(data.solar_score, 10)}`}>
+              {data.solar_score ?? 0}
+            </p>
+            <p className="card-max">/ 10</p>
+            <DeltaBadge value={delta(data.solar_score, 'solar_score')} />
+          </div>
         </div>
       </section>
 
