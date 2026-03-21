@@ -40,6 +40,7 @@ const runDoomCalculation = async ({ dryRun = false } = {}) => {
 
   if (dryRun) {
     console.log(`[${new Date().toISOString()}] 🧪 DRY RUN 완료. Date: ${targetDate}, Score: ${totalScore}/100`);
+    console.log(`\n💬 AI Commentary:\n${commentary}`);
     return;
   }
 

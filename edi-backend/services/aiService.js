@@ -36,6 +36,7 @@ const buildPrompt = ({ totalScore, societySummary, climateSummary, economySummar
 2. 각 줄은 50자 이내로 간결하게 작성할 것.
 3. 마지막 문장은 인류에 대한 한 줄 평으로 마무리할 것.
 4. 코멘터리 외 다른 텍스트(설명, 제목, 마크다운 등)는 절대 포함하지 말 것.
+5. 각 줄은 반드시 줄바꿈(\n)으로 구분할 것.
 `.trim();
 };
 
