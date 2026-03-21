@@ -73,7 +73,7 @@ router.delete('/vote', async (req, res) => {
 });
 
 // 오늘 투표 집계 + 어제 예측 결과 반환
-router.get('/vote/today', async (req, res) => {
+router.get('/vote/today', async (_req, res) => {
   try {
     // 서버 UTC 기준 오늘/어제 날짜 계산
     const now = new Date();
