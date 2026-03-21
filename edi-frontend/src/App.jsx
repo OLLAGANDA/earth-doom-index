@@ -67,6 +67,23 @@ function dangerLevel(score) {
   return           { label: 'SAFE',     cls: 'is-success' }
 }
 
+// todayDoomDate: data.target_date (서버 기준 오늘 날짜, 'YYYY-MM-DD')
+// 반환: 'pending' | 'open' | 'closed' | 'result'
+function getVotePhase(todayDoomDate) {
+  const now = new Date()
+  const todayUTC = now.toISOString().slice(0, 10)
+
+  if (todayDoomDate < todayUTC) return 'pending'   // 새 점수 미계산
+  if (todayDoomDate > todayUTC) return 'result'    // 다음날 이후
+
+  // todayDoomDate === todayUTC
+  const utcHour = now.getUTCHours()
+  const utcMin = now.getUTCMinutes()
+  const totalMin = utcHour * 60 + utcMin
+  if (totalMin < 5) return 'pending'               // 00:00~00:04 (계산 중)
+  if (totalMin >= 23 * 60 + 59) return 'closed'   // 23:59 이후
+  return 'open'
+}
 
 function useLang() {
   const [lang, setLang] = useState(() => {
@@ -82,6 +99,59 @@ function useLang() {
   return { lang, toggle }
 }
 
+const VOTE_BASE_URL = `${BASE_URL}/api/vote`
+
+function useVote(todayDoomDate) {
+  const phase = todayDoomDate ? getVotePhase(todayDoomDate) : null
+
+  // 투표 대상 날짜 = 오늘 doom 날짜 + 1일
+  const voteTargetDate = todayDoomDate
+    ? new Date(new Date(todayDoomDate).getTime() + 86400000).toISOString().slice(0, 10)
+    : null
+
+  const storageKey = voteTargetDate ? `edi-vote-${voteTargetDate}` : null
+
+  const [myVote, setMyVote] = useState(() =>
+    storageKey ? localStorage.getItem(storageKey) : null
+  )
+  const [showBallot, setShowBallot] = useState(false)
+  const [voteData, setVoteData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(`${VOTE_BASE_URL}/today`)
+      .then(res => res.ok ? res.json() : null)
+      .then(json => setVoteData(json))
+      .catch(() => setVoteData(null))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const castVote = async (direction) => {
+    // 재투표 시 이전 표 제거
+    if (myVote && myVote !== direction) {
+      await fetch(VOTE_BASE_URL, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction: myVote, target_date: voteTargetDate }),
+      })
+    }
+    const res = await fetch(VOTE_BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ direction, target_date: voteTargetDate }),
+    })
+    if (res.ok) {
+      const counts = await res.json()
+      setVoteData(prev => prev ? { ...prev, ...counts } : counts)
+      localStorage.setItem(storageKey, direction)
+      setMyVote(direction)
+      setShowBallot(false)
+    }
+  }
+
+  return { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading }
+}
+
 const CARD_INFO = {
   society: { title: '🏙 SOCIETY', max: 30 },
   climate: { title: '🌡 CLIMATE', max: 30 },
@@ -94,6 +164,124 @@ function DeltaBadge({ value }) {
   if (value > 0) return <span className="card-delta delta-up">+{value} ▲</span>
   if (value < 0) return <span className="card-delta delta-down">{value} ▽</span>
   return <span className="card-delta delta-zero">±0</span>
+}
+
+function VoteBar({ label, count, total, isMyVote }) {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0
+  return (
+    <div className={`vote-bar-row${isMyVote ? ' vote-bar-mine' : ''}`}>
+      <span className="vote-bar-label">{label}</span>
+      <div className="vote-bar-track">
+        <div className="vote-bar-fill" style={{ width: `${pct}%` }} />
+      </div>
+      <span className="vote-bar-pct">{pct}%</span>
+      {isMyVote && <span className="vote-bar-mark">◀</span>}
+    </div>
+  )
+}
+
+function VoteSection({ todayDoomDate, lang }) {
+  const t = translations[lang].vote
+  const { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading } = useVote(todayDoomDate)
+
+  if (!phase || phase === 'pending' || loading) return null
+
+  const counts = voteData ?? { up: 0, flat: 0, down: 0 }
+  const total = (counts.up ?? 0) + (counts.flat ?? 0) + (counts.down ?? 0)
+
+  // 결과 표시 (phase=result) — 어제 결과 + 오늘 새 투표 버튼 함께 표시
+  if (phase === 'result') {
+    const y = voteData?.yesterday
+    const pct = (dir) => y && (y.up + y.flat + y.down) > 0
+      ? Math.round((y[dir] / (y.up + y.flat + y.down)) * 100)
+      : 0
+    return (
+      <>
+        <section className="nes-container is-dark with-title vote-section">
+          <p className="title">📊 {t.resultTitle}</p>
+          {y ? (
+            <div className="vote-result-body">
+              <p className="vote-result-summary">
+                {y.prediction === 'up' ? `▲ UP ${pct('up')}%` : y.prediction === 'flat' ? `— FLAT ${pct('flat')}%` : `▽ DOWN ${pct('down')}%`}
+                {' → '}
+                {y.actual === 'up' ? '▲ UP' : y.actual === 'flat' ? '— FLAT' : y.actual === 'down' ? '▽ DOWN' : '—'}
+              </p>
+              <p className={`vote-result-verdict nes-text ${y.correct ? 'is-success' : 'is-error'}`}>
+                {y.correct === true ? `✓ ${t.correct}` : y.correct === false ? `✗ ${t.wrong}` : '—'}
+              </p>
+            </div>
+          ) : (
+            <p className="vote-no-data">—</p>
+          )}
+        </section>
+        {/* 오늘 새 투표 UI (phase=result이면서 오늘 투표 가능 시간대) */}
+        <section className="nes-container is-dark with-title vote-section">
+          <p className="title">🎰 {t.title}</p>
+          <p className="vote-question">{t.question}</p>
+          <div className="vote-buttons">
+            <button className={`nes-btn ${myVote === 'up' ? 'is-primary' : ''} vote-btn`} onClick={() => castVote('up')}>▲ UP</button>
+            <button className={`nes-btn ${myVote === 'flat' ? 'is-primary' : ''} vote-btn`} onClick={() => castVote('flat')}>— FLAT</button>
+            <button className={`nes-btn ${myVote === 'down' ? 'is-primary' : ''} vote-btn`} onClick={() => castVote('down')}>▽ DOWN</button>
+          </div>
+        </section>
+      </>
+    )
+  }
+
+  // 투표 마감 (phase=closed)
+  if (phase === 'closed') {
+    return (
+      <section className="nes-container is-dark with-title vote-section">
+        <p className="title">🎰 {t.title}</p>
+        <div className="vote-closed-body">
+          <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
+          <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
+          <VoteBar label="▽ DOWN" count={counts.down} total={total} isMyVote={myVote === 'down'} />
+          <p className="vote-closed-msg nes-text is-warning">{t.closed}</p>
+        </div>
+      </section>
+    )
+  }
+
+  // 투표 후 결과 뷰 (phase=open, myVote 있음, showBallot=false)
+  if (myVote && !showBallot) {
+    return (
+      <section className="nes-container is-dark with-title vote-section">
+        <p className="title">🎰 {t.title}</p>
+        <div className="vote-result-body">
+          <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
+          <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
+          <VoteBar label="▽ DOWN" count={counts.down} total={total} isMyVote={myVote === 'down'} />
+          <p className="vote-total">{t.totalVoters(total)}</p>
+          <button className="nes-btn is-warning vote-change-btn" onClick={() => setShowBallot(true)}>
+            {t.changeVote}
+          </button>
+        </div>
+      </section>
+    )
+  }
+
+  // 투표 전 / 재투표 화면 (phase=open)
+  return (
+    <section className="nes-container is-dark with-title vote-section">
+      <p className="title">🎰 {t.title}</p>
+      <p className="vote-question">{t.question}</p>
+      <div className="vote-buttons">
+        <button
+          className={`nes-btn ${myVote === 'up' ? 'is-primary' : ''} vote-btn`}
+          onClick={() => castVote('up')}
+        >▲ UP</button>
+        <button
+          className={`nes-btn ${myVote === 'flat' ? 'is-primary' : ''} vote-btn`}
+          onClick={() => castVote('flat')}
+        >— FLAT</button>
+        <button
+          className={`nes-btn ${myVote === 'down' ? 'is-primary' : ''} vote-btn`}
+          onClick={() => castVote('down')}
+        >▽ DOWN</button>
+      </div>
+    </section>
+  )
 }
 
 function TopNav({ lang, onToggle }) {
@@ -204,6 +392,9 @@ function App() {
           </div>
         </div>
       </section>
+
+      {/* 투표 섹션 */}
+      <VoteSection todayDoomDate={data.target_date} lang={lang} />
 
       {/* 하단: 개별 지표 카드 4개 */}
       <section className="score-cards">
