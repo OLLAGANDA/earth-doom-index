@@ -40,6 +40,40 @@ const buildPrompt = ({ totalScore, societySummary, climateSummary, economySummar
 `.trim();
 };
 
+const getToneGuideEn = (score) => {
+  if (score <= 30) return 'Cynically relaxed tone. E.g. "Still holding together.", "Curious. Still alive."';
+  if (score <= 60) return 'Cold warning tone. E.g. "Accelerating.", "Within predicted range.", "No anomalies. As expected."';
+  return 'Apocalyptic declaration tone. E.g. "Calculation complete.", "The outcome is clear.", "No variables remain."';
+};
+
+const buildPromptEn = ({ totalScore, societySummary, climateSummary, economySummary, solarSummary }) => {
+  const safe = (v) => (v != null && v !== '' ? v : 'No data');
+  const toneGuide = getToneGuideEn(totalScore ?? 0);
+
+  return `
+You are DOOM-9000, a retro 8-bit AI designed to predict the collapse of human civilization.
+Cynical, blunt, laced with dark humor.
+Write a concise, impactful commentary in English based on today's Earth Doom Index (EDI) data.
+
+[TODAY'S DATA]
+- Total Earth Doom Index: ${totalScore ?? '?'} / 100
+- Society: ${safe(societySummary)}
+- Climate: ${safe(climateSummary)}
+- Economy: ${safe(economySummary)}
+- Solar Activity (SOLAR STORM): ${safe(solarSummary)}
+
+[TONE GUIDE FOR TODAY]
+Score ${totalScore ?? '?'} — ${toneGuide}
+
+[RULES]
+1. Exactly 3 lines.
+2. Each line must be 50 characters or fewer.
+3. The last line must be a one-line verdict on humanity.
+4. No extra text, titles, explanations, or markdown.
+5. Separate each line with a newline (\\n).
+`.trim();
+};
+
 const generateCommentary = async (scoreData) => {
   try {
     const response = await ai.models.generateContent({
@@ -53,4 +87,34 @@ const generateCommentary = async (scoreData) => {
   }
 };
 
-module.exports = { generateCommentary };
+const generateCommentaries = async (scoreData) => {
+  const [ko, en] = await Promise.all([
+    (async () => {
+      try {
+        const response = await ai.models.generateContent({
+          model: MODEL,
+          contents: buildPrompt(scoreData),
+        });
+        return response.text;
+      } catch (error) {
+        console.error('AI 코멘터리(KO) 생성 실패:', error.message);
+        return null;
+      }
+    })(),
+    (async () => {
+      try {
+        const response = await ai.models.generateContent({
+          model: MODEL,
+          contents: buildPromptEn(scoreData),
+        });
+        return response.text;
+      } catch (error) {
+        console.error('AI commentary (EN) generation failed:', error.message);
+        return null;
+      }
+    })(),
+  ]);
+  return { ko, en };
+};
+
+module.exports = { generateCommentary, generateCommentaries };
