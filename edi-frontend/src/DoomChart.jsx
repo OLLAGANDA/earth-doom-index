@@ -161,11 +161,6 @@ export default function DoomChart({ historyData: allHistory = [] }) {
       </div>
       )}
 
-      {historyData.length > 0 && historyData.length < days && (
-        <p className="sub-text" style={{ marginTop: 8 }}>
-          * {historyData.length}일치 데이터만 존재합니다.
-        </p>
-      )}
     </section>
   )
 }
