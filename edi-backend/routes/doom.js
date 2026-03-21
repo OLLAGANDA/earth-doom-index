@@ -7,7 +7,9 @@ const { getDoomToday, getDoomHistory, saveVote, deleteVote, getVotesToday, getYe
 const VALID_DIRECTIONS = new Set(['up', 'flat', 'down']);
 
 function isValidDate(str) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(str) && !isNaN(Date.parse(str));
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+  const d = new Date(str + 'T00:00:00Z');
+  return !isNaN(d.getTime()) && d.toISOString().slice(0, 10) === str;
 }
 
 const router = Router();
