@@ -35,6 +35,16 @@ export const translations = {
       '4. 서비스는 예고 없이 변경되거나 종료될 수 있습니다.',
       '5. 진지하게 받아들이지 마세요. 지구는 (아마도) 괜찮습니다.',
     ],
+    vote: {
+      title: 'TOMORROW\'S PREDICTION',
+      question: 'TOMORROW\'S DOOM?',
+      changeVote: 'CHANGE VOTE',
+      closed: 'VOTING CLOSED \u2014 RESULTS TOMORROW',
+      resultTitle: 'YESTERDAY\'S RESULT',
+      correct: 'CORRECT',
+      wrong: 'WRONG',
+      totalVoters: (n) => `${n} VOTES`,
+    },
   },
   en: {
     loading: 'Calculating Earth Doom Index...',
@@ -72,5 +82,15 @@ export const translations = {
       '4. The service may change or shut down without notice.',
       "5. Don't take it seriously. Earth is (probably) fine.",
     ],
+    vote: {
+      title: 'TOMORROW\'S PREDICTION',
+      question: 'TOMORROW\'S DOOM?',
+      changeVote: 'CHANGE VOTE',
+      closed: 'VOTING CLOSED \u2014 RESULTS TOMORROW',
+      resultTitle: 'YESTERDAY\'S RESULT',
+      correct: 'CORRECT',
+      wrong: 'WRONG',
+      totalVoters: (n) => `${n} VOTES`,
+    },
   },
 }
