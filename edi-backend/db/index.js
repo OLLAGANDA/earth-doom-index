@@ -27,6 +27,10 @@ const initDB = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await pool.query(`
+      ALTER TABLE doom_records
+      ADD COLUMN IF NOT EXISTS ai_commentary_en TEXT
+    `);
     console.log('✅ DB Schema is ready.');
   } catch (err) {
     console.error('❌ DB Initialization Error:', err);
@@ -63,19 +67,21 @@ const saveDoomRecord = async ({
   solarScore,
   totalScore,
   commentary,
+  commentaryEn,
 }) => {
   await pool.query(
     `INSERT INTO doom_records
-       (target_date, society_score, climate_score, economy_score, solar_score, total_score, ai_commentary)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+       (target_date, society_score, climate_score, economy_score, solar_score, total_score, ai_commentary, ai_commentary_en)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      ON CONFLICT (target_date) DO UPDATE SET
-       society_score = EXCLUDED.society_score,
-       climate_score = EXCLUDED.climate_score,
-       economy_score = EXCLUDED.economy_score,
-       solar_score   = EXCLUDED.solar_score,
-       total_score   = EXCLUDED.total_score,
-       ai_commentary = EXCLUDED.ai_commentary`,
-    [targetDate, societyScore, climateScore, economyScore, solarScore, totalScore, commentary]
+       society_score    = EXCLUDED.society_score,
+       climate_score    = EXCLUDED.climate_score,
+       economy_score    = EXCLUDED.economy_score,
+       solar_score      = EXCLUDED.solar_score,
+       total_score      = EXCLUDED.total_score,
+       ai_commentary    = EXCLUDED.ai_commentary,
+       ai_commentary_en = EXCLUDED.ai_commentary_en`,
+    [targetDate, societyScore, climateScore, economyScore, solarScore, totalScore, commentary, commentaryEn]
   );
 };
 
