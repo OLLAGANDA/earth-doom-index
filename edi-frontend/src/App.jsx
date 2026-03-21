@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import DoomChart from './DoomChart.jsx'
-// eslint-disable-next-line no-unused-vars
 import { translations } from './i18n.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''
@@ -84,30 +83,10 @@ function useLang() {
 }
 
 const CARD_INFO = {
-  society: {
-    title: '🏙 SOCIETY',
-    desc: '사회 불안 지수. GDELT 뉴스 데이터를 기반으로 전 세계 사회적 갈등, 시위, 분쟁 이벤트의 빈도와 강도를 측정합니다.',
-    source: 'GDELT Project',
-    max: 30,
-  },
-  climate: {
-    title: '🌡 CLIMATE',
-    desc: '기후 위협 지수. OpenWeather API를 기반으로 극단적 기상 현상, 이상 기온, 폭풍 등의 위협 수준을 측정합니다.',
-    source: 'OpenWeather API',
-    max: 30,
-  },
-  economy: {
-    title: '📈 ECONOMY',
-    desc: '경제 위협 지수. 글로벌 금융 시장 지표를 기반으로 경기 침체, 시장 불안정성, 인플레이션 위험을 측정합니다.',
-    source: 'Yahoo Finance API',
-    max: 30,
-  },
-  solar: {
-    title: '☀ SOLAR STORM',
-    desc: '태양 폭풍 지수. 태양 흑점 활동 및 지자기 폭풍 데이터를 기반으로 우주 기상이 지구에 미치는 위협을 측정합니다.',
-    source: 'NOAA SWPC',
-    max: 10,
-  },
+  society: { title: '🏙 SOCIETY', max: 30 },
+  climate: { title: '🌡 CLIMATE', max: 30 },
+  economy: { title: '📈 ECONOMY', max: 30 },
+  solar:   { title: '☀ SOLAR STORM', max: 10 },
 }
 
 function DeltaBadge({ value }) {
@@ -136,6 +115,7 @@ function App() {
   const { data, loading, error } = useDoomData()
   const historyData = useDoomHistory()
   const { lang, toggle } = useLang()
+  const t = translations[lang]
 
   // historyData는 target_date 오름차순 정렬 기준 — 마지막 항목=오늘, 그 전=어제
   const yesterday = historyData.length >= 2 ? historyData[historyData.length - 2] : null
@@ -154,8 +134,8 @@ function App() {
         <TopNav lang={lang} onToggle={toggle} />
         <div className="screen-center">
           <div className="nes-container is-dark">
-            <p className="nes-text is-primary blink">🌍 LOADING...</p>
-            <p className="sub-text">지구 멸망 지수 계산 중</p>
+            <p className="nes-text is-primary blink">{t.loadingTitle}</p>
+            <p className="sub-text">{t.loading}</p>
           </div>
         </div>
       </>
@@ -168,7 +148,7 @@ function App() {
         <TopNav lang={lang} onToggle={toggle} />
         <div className="screen-center">
           <div className="nes-container is-dark is-rounded">
-            <p className="nes-text is-error">⚠ SYSTEM ERROR</p>
+            <p className="nes-text is-error">{t.systemError}</p>
             <p className="sub-text">{error}</p>
           </div>
         </div>
@@ -182,7 +162,7 @@ function App() {
         <TopNav lang={lang} onToggle={toggle} />
         <div className="screen-center">
           <div className="nes-container is-dark">
-            <p className="nes-text is-warning">NO DATA</p>
+            <p className="nes-text is-warning">{t.noData}</p>
             <p className="sub-text">{data.message}</p>
           </div>
         </div>
@@ -193,7 +173,7 @@ function App() {
   const totalColor = scoreColor(data.total_score ?? 0, 100)
   const { label: dangerLabel, cls: dangerCls } = dangerLevel(data.total_score ?? 0)
   const rawDate = new Date(data.target_date)
-  const dateStr = isNaN(rawDate.getTime()) ? '-' : rawDate.toLocaleDateString('ko-KR')
+  const dateStr = isNaN(rawDate.getTime()) ? '-' : rawDate.toLocaleDateString(t.dateLocale)
 
   return (
     <>
@@ -216,7 +196,11 @@ function App() {
         <div className="nes-container is-dark with-title">
           <p className="title">🤖 DOOM-9000</p>
           <div className="commentary-body">
-            <p className="commentary-text">{data.ai_commentary ?? '해설 데이터 없음'}</p>
+            <p className="commentary-text">
+              {lang === 'ko'
+                ? (data.ai_commentary ?? t.noCommentary)
+                : (data.ai_commentary_en ?? t.noCommentary)}
+            </p>
           </div>
         </div>
       </section>
@@ -301,7 +285,7 @@ function App() {
           <span className="footer-sep">|</span>
           <span>© 2026 EARTH DOOM INDEX</span>
           <span className="footer-sep">|</span>
-          <button className="terms-btn" onClick={() => setShowTerms(true)}>이용약관</button>
+          <button className="terms-btn" onClick={() => setShowTerms(true)}>{t.terms}</button>
           <span className="footer-sep">|</span>
           <a href="mailto:dev782108@gmail.com" className="footer-link">CONTACT</a>
         </div>
@@ -312,16 +296,16 @@ function App() {
           <div className="modal-box nes-container is-dark" onClick={e => e.stopPropagation()}>
             <p className="title">{CARD_INFO[selectedCard].title}</p>
             <div className="modal-content">
-              <p>{CARD_INFO[selectedCard].desc}</p>
+              <p>{t.cards[selectedCard].desc}</p>
               <p className="card-info-source">
-                출처: {CARD_INFO[selectedCard].source} &nbsp;|&nbsp; 최대: {CARD_INFO[selectedCard].max}점
+                {t.cardInfoSource(t.cards[selectedCard].source, CARD_INFO[selectedCard].max)}
               </p>
             </div>
             <button
               className="nes-btn is-error modal-close"
               onClick={() => setSelectedCard(null)}
             >
-              닫기
+              {t.termsClose}
             </button>
           </div>
         </div>
@@ -330,15 +314,11 @@ function App() {
       {showTerms && (
         <div className="modal-overlay" onClick={() => setShowTerms(false)}>
           <div className="modal-box nes-container is-dark" onClick={e => e.stopPropagation()}>
-            <p className="title">이용약관</p>
+            <p className="title">{t.terms}</p>
             <div className="modal-content">
-              <p>1. 본 서비스는 순수한 재미를 위한 토이 프로젝트입니다.</p>
-              <p>2. 표시되는 지수는 실제 지구 위험도와 무관하며, 어떠한 과학적·법적 근거도 없습니다.</p>
-              <p>3. 본 서비스의 정보를 실제 의사결정에 활용하지 마세요.</p>
-              <p>4. 서비스는 예고 없이 변경되거나 종료될 수 있습니다.</p>
-              <p>5. 진지하게 받아들이지 마세요. 지구는 (아마도) 괜찮습니다.</p>
+              {t.termsContent.map((line, i) => <p key={i}>{line}</p>)}
             </div>
-            <button className="nes-btn is-error modal-close" onClick={() => setShowTerms(false)}>닫기</button>
+            <button className="nes-btn is-error modal-close" onClick={() => setShowTerms(false)}>{t.termsClose}</button>
           </div>
         </div>
       )}
