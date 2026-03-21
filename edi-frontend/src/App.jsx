@@ -127,12 +127,13 @@ function useVote(todayDoomDate) {
   }, [])
 
   const castVote = async (direction) => {
+    const prevVote = myVote
     // 재투표 시 이전 표 제거
-    if (myVote && myVote !== direction) {
+    if (prevVote && prevVote !== direction) {
       await fetch(VOTE_BASE_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ direction: myVote, target_date: voteTargetDate }),
+        body: JSON.stringify({ direction: prevVote, target_date: voteTargetDate }),
       })
     }
     const res = await fetch(VOTE_BASE_URL, {
@@ -146,6 +147,13 @@ function useVote(todayDoomDate) {
       localStorage.setItem(storageKey, direction)
       setMyVote(direction)
       setShowBallot(false)
+    } else if (prevVote && prevVote !== direction) {
+      // POST 실패 시 삭제된 이전 표 복구
+      await fetch(VOTE_BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction: prevVote, target_date: voteTargetDate }),
+      })
     }
   }
 
