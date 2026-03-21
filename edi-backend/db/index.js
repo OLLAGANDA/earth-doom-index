@@ -35,7 +35,7 @@ const initDB = async () => {
       CREATE TABLE IF NOT EXISTS votes (
         id          SERIAL PRIMARY KEY,
         target_date DATE NOT NULL,
-        direction   VARCHAR(4) NOT NULL,
+        direction   VARCHAR(4) NOT NULL CHECK (direction IN ('up', 'flat', 'down')),
         created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
