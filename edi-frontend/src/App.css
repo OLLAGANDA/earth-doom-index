@@ -273,11 +273,30 @@ body {
   }
 
   .score-cards {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
+  }
+
+  .score-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+
+  .score-card .title {
+    min-height: unset;
   }
 
   .card-score {
     font-size: 28px !important;
+    margin: 0 !important;
+  }
+
+  .card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .commentary-body {
