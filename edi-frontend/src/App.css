@@ -285,14 +285,21 @@ body {
   letter-spacing: 1px;
 }
 
-.vote-result-summary {
-  font-size: 9px !important;
-  color: #ccc;
-  margin-bottom: 8px !important;
+.vote-result-label {
+  font-size: 7px !important;
+  color: #888;
+  margin: 10px 0 6px !important;
+  letter-spacing: 1px;
+}
+
+.vote-result-actual {
+  font-size: 11px !important;
+  letter-spacing: 1px;
+  margin-bottom: 6px !important;
 }
 
 .vote-result-verdict {
-  font-size: 11px !important;
+  font-size: 10px !important;
   letter-spacing: 2px;
 }
 

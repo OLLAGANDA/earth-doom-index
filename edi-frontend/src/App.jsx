@@ -238,16 +238,17 @@ function VoteTimerChip({ label, time, urgent }) {
 function YesterdayResult({ y, t }) {
   if (!y) return null
   const yTotal = y.up + y.flat + y.down
-  const pct = (dir) => yTotal > 0 ? Math.round((y[dir] / yTotal) * 100) : 0
+  const actualLabel = y.actual === 'up' ? '▲ UP' : y.actual === 'flat' ? '— FLAT' : '▽ DOWN'
   return (
     <section className="nes-container is-dark with-title vote-section">
       <p className="title">📊 {t.resultTitle}</p>
       <div className="vote-result-body">
-        <p className="vote-result-summary">
-          {y.prediction === 'up' ? `▲ UP ${pct('up')}%` : y.prediction === 'flat' ? `— FLAT ${pct('flat')}%` : `▽ DOWN ${pct('down')}%`}
-          {' → '}
-          {y.actual === 'up' ? '▲ UP' : y.actual === 'flat' ? '— FLAT' : y.actual === 'down' ? '▽ DOWN' : '—'}
-        </p>
+        <p className="vote-result-label">{t.resultVoted}</p>
+        <VoteBar label="▲ UP"   count={y.up}   total={yTotal} isMyVote={y.prediction === 'up'} />
+        <VoteBar label="— FLAT" count={y.flat} total={yTotal} isMyVote={y.prediction === 'flat'} />
+        <VoteBar label="▽ DOWN" count={y.down} total={yTotal} isMyVote={y.prediction === 'down'} />
+        <p className="vote-result-label">{t.resultActual}</p>
+        <p className={`vote-result-actual nes-text ${y.correct ? 'is-success' : 'is-error'}`}>{actualLabel}</p>
         <p className={`vote-result-verdict nes-text ${y.correct ? 'is-success' : 'is-error'}`}>
           {y.correct === true ? `✓ ${t.correct}` : y.correct === false ? `✗ ${t.wrong}` : '—'}
         </p>
