@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+.title {
+  font-weight: bold !important;
+}
+
 body {
   background-color: #212529;
   margin: 0;
@@ -103,6 +107,7 @@ body {
 
 .danger-badge {
   font-size: 14px !important;
+  font-weight: bold !important;
   letter-spacing: 3px;
   margin: 8px 0 4px !important;
 }
