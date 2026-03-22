@@ -105,7 +105,7 @@ export default function DoomChart({ historyData: allHistory = [] }) {
                 y={chartMax}
                 stroke="#e76e55"
                 strokeDasharray="4 4"
-                label={{ value: 'HIGH', fill: '#e76e55', fontSize: 8, position: 'insideTopRight' }}
+                label={{ value: 'HIGH', fill: '#e76e55', fontSize: 8, position: 'insideBottomRight' }}
               />
             )}
             {chartMin !== null && chartMin !== chartMax && (
@@ -113,7 +113,7 @@ export default function DoomChart({ historyData: allHistory = [] }) {
                 y={chartMin}
                 stroke="#92cc41"
                 strokeDasharray="4 4"
-                label={{ value: 'LOW', fill: '#92cc41', fontSize: 8, position: 'insideBottomRight' }}
+                label={{ value: 'LOW', fill: '#92cc41', fontSize: 8, position: 'insideTopRight' }}
               />
             )}
             {showBreakdown && (
