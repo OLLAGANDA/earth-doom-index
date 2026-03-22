@@ -265,6 +265,14 @@ body {
   color: #92cc41;
 }
 
+.vote-bar-majority .vote-bar-label {
+  color: #f7d51d;
+}
+
+.vote-bar-majority-mark {
+  color: #f7d51d;
+}
+
 .vote-total {
   font-size: 8px !important;
   color: #888;

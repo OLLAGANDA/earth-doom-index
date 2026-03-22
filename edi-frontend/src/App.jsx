@@ -211,16 +211,17 @@ function DeltaBadge({ value }) {
   return <span className="card-delta delta-zero">±0</span>
 }
 
-function VoteBar({ label, count, total, isMyVote }) {
+function VoteBar({ label, count, total, isMyVote, isMajority }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0
   return (
-    <div className={`vote-bar-row${isMyVote ? ' vote-bar-mine' : ''}`}>
+    <div className={`vote-bar-row${isMyVote ? ' vote-bar-mine' : ''}${isMajority ? ' vote-bar-majority' : ''}`}>
       <span className="vote-bar-label">{label}</span>
       <div className="vote-bar-track">
         <div className="vote-bar-fill" style={{ width: `${pct}%` }} />
       </div>
       <span className="vote-bar-pct">{pct}%</span>
       {isMyVote && <span className="vote-bar-mark">◀</span>}
+      {isMajority && <span className="vote-bar-mark vote-bar-majority-mark">★</span>}
     </div>
   )
 }
@@ -244,9 +245,9 @@ function YesterdayResult({ y, t }) {
       <p className="title">📊 {t.resultTitle}</p>
       <div className="vote-result-body">
         <p className="vote-result-label">{t.resultVoted}</p>
-        <VoteBar label="▲ UP"   count={y.up}   total={yTotal} isMyVote={y.prediction === 'up'} />
-        <VoteBar label="— FLAT" count={y.flat} total={yTotal} isMyVote={y.prediction === 'flat'} />
-        <VoteBar label="▽ DOWN" count={y.down} total={yTotal} isMyVote={y.prediction === 'down'} />
+        <VoteBar label="▲ UP"   count={y.up}   total={yTotal} isMajority={y.prediction === 'up'} />
+        <VoteBar label="— FLAT" count={y.flat} total={yTotal} isMajority={y.prediction === 'flat'} />
+        <VoteBar label="▽ DOWN" count={y.down} total={yTotal} isMajority={y.prediction === 'down'} />
         <p className="vote-result-label">{t.resultActual}</p>
         <p className={`vote-result-actual nes-text ${y.correct ? 'is-success' : 'is-error'}`}>{actualLabel}</p>
         <p className={`vote-result-verdict nes-text ${y.correct ? 'is-success' : 'is-error'}`}>
