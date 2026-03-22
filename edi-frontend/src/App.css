@@ -120,11 +120,12 @@ body {
 }
 
 .game-tagline {
-  font-size: 8px;
-  color: #666;
+  font-size: 10px;
+  color: #bbb;
   margin-bottom: 28px;
-  letter-spacing: 1px;
-  line-height: 1.8;
+  letter-spacing: 2px;
+  line-height: 2;
+  font-weight: bold;
 }
 
 .total-score {
