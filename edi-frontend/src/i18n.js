@@ -33,8 +33,8 @@ export const translations = {
         source: 'Yahoo Finance API',
       },
       solar: {
-        title: '☀ 태양폭풍',
-        desc: '태양 폭풍 지수. 태양 흑점 활동 및 지자기 폭풍 데이터를 기반으로 우주 기상이 지구에 미치는 위협을 측정합니다.',
+        title: '☀ 태양',
+        desc: '태양 지수. 태양 흑점 활동 및 지자기 폭풍 데이터를 기반으로 우주 기상이 지구에 미치는 위협을 측정합니다.',
         source: 'NOAA SWPC',
       },
     },
@@ -104,8 +104,8 @@ export const translations = {
         source: 'Yahoo Finance API',
       },
       solar: {
-        title: '☀ SOLAR STORM',
-        desc: 'Solar storm index. Measures space weather threats to Earth based on sunspot activity and geomagnetic storm data.',
+        title: '☀ SOLAR',
+        desc: 'Solar index. Measures space weather threats to Earth based on sunspot activity and geomagnetic storm data.',
         source: 'NOAA SWPC',
       },
     },

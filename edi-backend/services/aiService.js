@@ -26,7 +26,7 @@ const buildPrompt = ({ totalScore, societySummary, climateSummary, economySummar
 - 사회 지표: ${safe(societySummary)}
 - 기후 지표: ${safe(climateSummary)}
 - 경제 지표: ${safe(economySummary)}
-- 태양 활동(SOLAR STORM): ${safe(solarSummary)}
+- 태양 활동(SOLAR): ${safe(solarSummary)}
 
 [오늘의 톤 가이드]
 지수 ${totalScore ?? '?'} 기준 — ${toneGuide}
@@ -60,7 +60,7 @@ Write a concise, impactful commentary in English based on today's Earth Doom Ind
 - Society: ${safe(societySummary)}
 - Climate: ${safe(climateSummary)}
 - Economy: ${safe(economySummary)}
-- Solar Activity (SOLAR STORM): ${safe(solarSummary)}
+- Solar Activity (SOLAR): ${safe(solarSummary)}
 
 [TONE GUIDE FOR TODAY]
 Score ${totalScore ?? '?'} — ${toneGuide}
