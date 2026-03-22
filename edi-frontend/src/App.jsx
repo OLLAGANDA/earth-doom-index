@@ -526,7 +526,7 @@ function App() {
       </section>
 
       {/* 트렌드 차트 */}
-      <DoomChart historyData={historyData} />
+      <DoomChart historyData={historyData} t={t.chart} />
 
       {/* 푸터 */}
       <footer className="site-footer">

@@ -30,7 +30,7 @@ const RetroTooltip = ({ active, payload, label }) => {
   )
 }
 
-export default function DoomChart({ historyData: allHistory = [] }) {
+export default function DoomChart({ historyData: allHistory = [], t = {} }) {
   const [days, setDays] = useState(7)
   const [showBreakdown, setShowBreakdown] = useState(false)
 
@@ -42,7 +42,7 @@ export default function DoomChart({ historyData: allHistory = [] }) {
 
   return (
     <section className="nes-container is-dark with-title chart-section">
-      <p className="title">DOOM TREND</p>
+      <p className="title">{t.title}</p>
 
       <div className="chart-toggle-row">
         <button
@@ -61,13 +61,13 @@ export default function DoomChart({ historyData: allHistory = [] }) {
           className={`nes-btn ${showBreakdown ? 'is-warning' : ''}`}
           onClick={() => setShowBreakdown(v => !v)}
         >
-          BREAKDOWN
+          {t.breakdown}
         </button>
       </div>
 
       {historyData.length === 0 && (
         <div className="nes-container is-dark">
-          <p className="nes-text is-warning" style={{ fontSize: '10px' }}>NO HISTORY</p>
+          <p className="nes-text is-warning" style={{ fontSize: '10px' }}>{t.noHistory}</p>
           <p className="sub-text">아직 기록된 데이터가 없습니다.</p>
         </div>
       )}
@@ -95,7 +95,7 @@ export default function DoomChart({ historyData: allHistory = [] }) {
             <Line
               type="linear"
               dataKey="total_score"
-              name="TOTAL"
+              name={t.total}
               stroke="#e76e55"
               strokeWidth={3}
               dot={false}
@@ -105,7 +105,7 @@ export default function DoomChart({ historyData: allHistory = [] }) {
                 y={chartMax}
                 stroke="#e76e55"
                 strokeDasharray="4 4"
-                label={{ value: 'HIGH', fill: '#e76e55', fontSize: 8, position: 'insideBottomRight' }}
+                label={{ value: t.high, fill: '#e76e55', fontSize: 8, position: 'insideBottomRight' }}
               />
             )}
             {chartMin !== null && chartMin !== chartMax && (
@@ -113,14 +113,14 @@ export default function DoomChart({ historyData: allHistory = [] }) {
                 y={chartMin}
                 stroke="#92cc41"
                 strokeDasharray="4 4"
-                label={{ value: 'LOW', fill: '#92cc41', fontSize: 8, position: 'insideTopRight' }}
+                label={{ value: t.low, fill: '#92cc41', fontSize: 8, position: 'insideTopRight' }}
               />
             )}
             {showBreakdown && (
               <Line
                 type="linear"
                 dataKey="society_score"
-                name="SOCIETY"
+                name={t.society}
                 stroke="#92cc41"
                 strokeWidth={1.5}
                 dot={false}
@@ -130,7 +130,7 @@ export default function DoomChart({ historyData: allHistory = [] }) {
               <Line
                 type="linear"
                 dataKey="climate_score"
-                name="CLIMATE"
+                name={t.climate}
                 stroke="#209cee"
                 strokeWidth={1.5}
                 dot={false}
@@ -140,7 +140,7 @@ export default function DoomChart({ historyData: allHistory = [] }) {
               <Line
                 type="linear"
                 dataKey="economy_score"
-                name="ECONOMY"
+                name={t.economy}
                 stroke="#f7d51d"
                 strokeWidth={1.5}
                 dot={false}
@@ -150,7 +150,7 @@ export default function DoomChart({ historyData: allHistory = [] }) {
               <Line
                 type="linear"
                 dataKey="solar_score"
-                name="SOLAR"
+                name={t.solar}
                 stroke="#ff6b6b"
                 strokeWidth={1.5}
                 dot={false}
