@@ -1,6 +1,6 @@
 /* nes.css가 Press Start 2P를 사용하므로 전체 폰트 적용 */
 * {
-  font-family: 'Press Start 2P', cursive !important;
+  font-family: 'Press Start 2P', 'Galmuri11', cursive !important;
   box-sizing: border-box;
 }
 
