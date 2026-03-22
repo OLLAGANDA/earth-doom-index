@@ -115,8 +115,16 @@ body {
 .game-subtitle {
   font-size: 10px;
   color: #aaa;
-  margin-bottom: 32px;
+  margin-bottom: 12px;
   letter-spacing: 2px;
+}
+
+.game-tagline {
+  font-size: 8px;
+  color: #666;
+  margin-bottom: 28px;
+  letter-spacing: 1px;
+  line-height: 1.8;
 }
 
 .total-score {
