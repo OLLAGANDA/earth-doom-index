@@ -60,11 +60,11 @@ function scoreColor(score, max) {
   return 'is-success'
 }
 
-function dangerLevel(score) {
-  if (score >= 70) return { label: 'CRITICAL', cls: 'is-error blink' }
-  if (score >= 50) return { label: 'DANGER',   cls: 'is-error' }
-  if (score >= 30) return { label: 'CAUTION',  cls: 'is-warning' }
-  return           { label: 'SAFE',     cls: 'is-success' }
+function dangerLevel(score, t) {
+  if (score >= 70) return { label: t.dangerLevel.critical, cls: 'is-error blink' }
+  if (score >= 50) return { label: t.dangerLevel.danger,   cls: 'is-error' }
+  if (score >= 30) return { label: t.dangerLevel.caution,  cls: 'is-warning' }
+  return           { label: t.dangerLevel.safe,     cls: 'is-success' }
 }
 
 // todayDoomDate: data.target_date (서버 기준 오늘 날짜, 'YYYY-MM-DD')
@@ -198,10 +198,10 @@ function useVoteCountdown(todayDoomDate) {
 }
 
 const CARD_INFO = {
-  society: { title: '🏙 SOCIETY', max: 30 },
-  climate: { title: '🌡 CLIMATE', max: 30 },
-  economy: { title: '📈 ECONOMY', max: 30 },
-  solar:   { title: '☀ SOLAR STORM', max: 10 },
+  society: { max: 30 },
+  climate: { max: 30 },
+  economy: { max: 30 },
+  solar:   { max: 10 },
 }
 
 function DeltaBadge({ value }) {
@@ -425,7 +425,7 @@ function App() {
   }
 
   const totalColor = scoreColor(data.total_score ?? 0, 100)
-  const { label: dangerLabel, cls: dangerCls } = dangerLevel(data.total_score ?? 0)
+  const { label: dangerLabel, cls: dangerCls } = dangerLevel(data.total_score ?? 0, t)
   const rawDate = new Date(data.target_date)
   const dateStr = isNaN(rawDate.getTime()) ? '-' : rawDate.toLocaleDateString(t.dateLocale)
 
@@ -469,7 +469,7 @@ function App() {
           onClick={() => setSelectedCard('society')}
           style={{ cursor: 'pointer' }}
         >
-          <p className="title">🏙society</p>
+          <p className="title">{t.cards.society.title}</p>
           <div className="card-right">
             <p className={`card-score nes-text ${scoreColor(data.society_score, 30)}`}>
               {data.society_score}
@@ -484,7 +484,7 @@ function App() {
           onClick={() => setSelectedCard('climate')}
           style={{ cursor: 'pointer' }}
         >
-          <p className="title">🌡climate</p>
+          <p className="title">{t.cards.climate.title}</p>
           <div className="card-right">
             <p className={`card-score nes-text ${scoreColor(data.climate_score, 30)}`}>
               {data.climate_score}
@@ -499,7 +499,7 @@ function App() {
           onClick={() => setSelectedCard('economy')}
           style={{ cursor: 'pointer' }}
         >
-          <p className="title">📈economy</p>
+          <p className="title">{t.cards.economy.title}</p>
           <div className="card-right">
             <p className={`card-score nes-text ${scoreColor(data.economy_score, 30)}`}>
               {data.economy_score}
@@ -514,7 +514,7 @@ function App() {
           onClick={() => setSelectedCard('solar')}
           style={{ cursor: 'pointer' }}
         >
-          <p className="title">☀SOLAR</p>
+          <p className="title">{t.cards.solar.title}</p>
           <div className="card-right">
             <p className={`card-score nes-text ${scoreColor(data.solar_score, 10)}`}>
               {data.solar_score ?? 0}
@@ -551,7 +551,7 @@ function App() {
       {selectedCard && (
         <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
           <div className="modal-box nes-container is-dark" onClick={e => e.stopPropagation()}>
-            <p className="title">{CARD_INFO[selectedCard].title}</p>
+            <p className="title">{t.cards[selectedCard].title}</p>
             <div className="modal-content">
               <p>{t.cards[selectedCard].desc}</p>
               <p className="card-info-source">

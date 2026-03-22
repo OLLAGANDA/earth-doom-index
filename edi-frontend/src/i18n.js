@@ -10,20 +10,30 @@ export const translations = {
     termsClose: '닫기',
     cardInfoSource: (source, max) => `출처: ${source} | 최대: ${max}점`,
     dateLocale: 'ko-KR',
+    dangerLevel: {
+      critical: '위험',
+      danger: '경고',
+      caution: '주의',
+      safe: '안전',
+    },
     cards: {
       society: {
+        title: '🏙 사회',
         desc: '사회 불안 지수. GDELT 뉴스 데이터를 기반으로 전 세계 사회적 갈등, 시위, 분쟁 이벤트의 빈도와 강도를 측정합니다.',
         source: 'GDELT Project',
       },
       climate: {
+        title: '🌡 기후',
         desc: '기후 위협 지수. OpenWeather API를 기반으로 극단적 기상 현상, 이상 기온, 폭풍 등의 위협 수준을 측정합니다.',
         source: 'OpenWeather API',
       },
       economy: {
+        title: '📈 경제',
         desc: '경제 위협 지수. 글로벌 금융 시장 지표를 기반으로 경기 침체, 시장 불안정성, 인플레이션 위험을 측정합니다.',
         source: 'Yahoo Finance API',
       },
       solar: {
+        title: '☀ 태양폭풍',
         desc: '태양 폭풍 지수. 태양 흑점 활동 및 지자기 폭풍 데이터를 기반으로 우주 기상이 지구에 미치는 위협을 측정합니다.',
         source: 'NOAA SWPC',
       },
@@ -59,20 +69,30 @@ export const translations = {
     termsClose: 'Close',
     cardInfoSource: (source, max) => `Source: ${source} | Max: ${max}pts`,
     dateLocale: 'en-US',
+    dangerLevel: {
+      critical: 'CRITICAL',
+      danger: 'DANGER',
+      caution: 'CAUTION',
+      safe: 'SAFE',
+    },
     cards: {
       society: {
+        title: '🏙 SOCIETY',
         desc: 'Social unrest index. Measures frequency and intensity of global conflicts, protests, and dispute events based on GDELT news data.',
         source: 'GDELT Project',
       },
       climate: {
+        title: '🌡 CLIMATE',
         desc: 'Climate threat index. Measures threat level of extreme weather events, temperature anomalies, and storms via OpenWeather API.',
         source: 'OpenWeather API',
       },
       economy: {
+        title: '📈 ECONOMY',
         desc: 'Economic threat index. Measures recession risk, market instability, and inflation danger based on global financial market indicators.',
         source: 'Yahoo Finance API',
       },
       solar: {
+        title: '☀ SOLAR STORM',
         desc: 'Solar storm index. Measures space weather threats to Earth based on sunspot activity and geomagnetic storm data.',
         source: 'NOAA SWPC',
       },
