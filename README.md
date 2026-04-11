@@ -1,4 +1,4 @@
-# 🌍 Earth Doom Index
+# 🌍 [Earth Doom Index](https://www.earthdoomindex.com/)
 
 > **DOOM-9000이 매일 계산합니다. 오늘 지구는 얼마나 망했는가.**
 
