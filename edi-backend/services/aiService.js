@@ -100,32 +100,36 @@ First line\nSecond line\nThird line
 `.trim();
 };
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// 실패 시 최대 maxRetries회 재시도 (지수 백오프: 2s → 4s → 8s)
+const generateWithRetry = async (prompt, label, maxRetries = 5) => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await ai.models.generateContent({
+        model: MODEL,
+        contents: prompt,
+      });
+      return response.text;
+    } catch (error) {
+      const isLast = attempt === maxRetries;
+      console.error(
+        `[${new Date().toISOString()}] AI 코멘터리(${label}) 생성 실패 (시도 ${attempt}/${maxRetries}):`,
+        error.status ?? '',
+        error.message,
+      );
+      if (isLast) return null;
+      const delay = 2000 * 2 ** (attempt - 1); // 2s, 4s, 8s
+      console.log(`[${new Date().toISOString()}] ${delay / 1000}초 후 재시도...`);
+      await sleep(delay);
+    }
+  }
+};
+
 const generateCommentaries = async (scoreData) => {
   const [ko, en] = await Promise.all([
-    (async () => {
-      try {
-        const response = await ai.models.generateContent({
-          model: MODEL,
-          contents: buildPrompt(scoreData),
-        });
-        return response.text;
-      } catch (error) {
-        console.error('AI 코멘터리(KO) 생성 실패:', error.message);
-        return null;
-      }
-    })(),
-    (async () => {
-      try {
-        const response = await ai.models.generateContent({
-          model: MODEL,
-          contents: buildPromptEn(scoreData),
-        });
-        return response.text;
-      } catch (error) {
-        console.error('AI commentary (EN) generation failed:', error.message);
-        return null;
-      }
-    })(),
+    generateWithRetry(buildPrompt(scoreData), 'KO'),
+    generateWithRetry(buildPromptEn(scoreData), 'EN'),
   ]);
   return { ko, en };
 };
