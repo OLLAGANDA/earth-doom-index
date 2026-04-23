@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import DoomChart from './DoomChart.jsx'
 import { translations } from './i18n.js'
@@ -116,6 +116,8 @@ function useVote(todayDoomDate) {
   const [showBallot, setShowBallot] = useState(false)
   const [voteData, setVoteData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isVoting, setIsVoting] = useState(false)
+  const votingRef = useRef(false)
 
   useEffect(() => {
     fetch(`${VOTE_BASE_URL}/today`)
@@ -126,37 +128,50 @@ function useVote(todayDoomDate) {
   }, [])
 
   const castVote = async (direction) => {
-    const prevVote = myVote
-    // 재투표 시 이전 표 제거
-    if (prevVote && prevVote !== direction) {
-      await fetch(VOTE_BASE_URL, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ direction: prevVote, target_date: voteTargetDate }),
-      })
-    }
-    const res = await fetch(VOTE_BASE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ direction, target_date: voteTargetDate }),
-    })
-    if (res.ok) {
-      const counts = await res.json()
-      setVoteData(prev => prev ? { ...prev, ...counts } : counts)
-      localStorage.setItem(storageKey, direction)
-      setMyVote(direction)
+    if (votingRef.current) return
+    // 재투표 화면에서 기존과 같은 방향 클릭 시 API 호출 없이 닫기
+    if (myVote === direction) {
       setShowBallot(false)
-    } else if (prevVote && prevVote !== direction) {
-      // POST 실패 시 삭제된 이전 표 복구
-      await fetch(VOTE_BASE_URL, {
+      return
+    }
+    votingRef.current = true
+    setIsVoting(true)
+    const prevVote = myVote
+    try {
+      // 재투표 시 이전 표 제거
+      if (prevVote && prevVote !== direction) {
+        await fetch(VOTE_BASE_URL, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ direction: prevVote, target_date: voteTargetDate }),
+        })
+      }
+      const res = await fetch(VOTE_BASE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ direction: prevVote, target_date: voteTargetDate }),
+        body: JSON.stringify({ direction, target_date: voteTargetDate }),
       })
+      if (res.ok) {
+        const counts = await res.json()
+        setVoteData(prev => prev ? { ...prev, ...counts } : counts)
+        localStorage.setItem(storageKey, direction)
+        setMyVote(direction)
+        setShowBallot(false)
+      } else if (prevVote && prevVote !== direction) {
+        // POST 실패 시 삭제된 이전 표 복구
+        await fetch(VOTE_BASE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ direction: prevVote, target_date: voteTargetDate }),
+        })
+      }
+    } finally {
+      votingRef.current = false
+      setIsVoting(false)
     }
   }
 
-  return { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading }
+  return { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading, isVoting }
 }
 
 function computeVoteCountdown(todayDoomDate) {
@@ -260,7 +275,7 @@ function YesterdayResult({ y, t }) {
 
 function VoteSection({ todayDoomDate, lang }) {
   const t = translations[lang].vote
-  const { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading } = useVote(todayDoomDate)
+  const { myVote, phase, showBallot, setShowBallot, castVote, voteData, loading, isVoting } = useVote(todayDoomDate)
   const countdown = useVoteCountdown(todayDoomDate)
 
   if (!phase || (phase === 'pending' && countdown.label === null) || loading) return null
@@ -334,14 +349,17 @@ function VoteSection({ todayDoomDate, lang }) {
           <button
             className={`nes-btn ${myVote === 'up' ? 'is-primary' : ''} vote-btn`}
             onClick={() => castVote('up')}
+            disabled={isVoting}
           >▲ UP</button>
           <button
             className={`nes-btn ${myVote === 'flat' ? 'is-primary' : ''} vote-btn`}
             onClick={() => castVote('flat')}
+            disabled={isVoting}
           >— FLAT</button>
           <button
             className={`nes-btn ${myVote === 'down' ? 'is-primary' : ''} vote-btn`}
             onClick={() => castVote('down')}
+            disabled={isVoting}
           >▽ DOWN</button>
         </div>
       </section>
