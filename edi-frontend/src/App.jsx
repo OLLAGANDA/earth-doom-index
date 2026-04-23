@@ -311,7 +311,6 @@ function VoteSection({ todayDoomDate, lang }) {
             <VoteBar label="▲ UP"   count={counts.up}   total={total} isMyVote={myVote === 'up'} />
             <VoteBar label="— FLAT" count={counts.flat} total={total} isMyVote={myVote === 'flat'} />
             <VoteBar label="▽ DOWN" count={counts.down} total={total} isMyVote={myVote === 'down'} />
-            <p className="vote-total">{t.totalVoters(total)}</p>
             <button className="nes-btn is-warning vote-change-btn" onClick={() => setShowBallot(true)}>
               {t.changeVote}
             </button>

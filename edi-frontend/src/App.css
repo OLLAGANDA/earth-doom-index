@@ -159,6 +159,7 @@ body {
   color: #e0e0e0;
   text-align: left;
   word-break: keep-all;
+  white-space: pre-wrap;
 }
 
 /* ───── 하단 지표 카드 ───── */
