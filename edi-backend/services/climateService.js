@@ -5,9 +5,9 @@ const axios = require('axios');
 // 대륙별 기후 취약 거점 7곳
 const TARGET_CITIES = ['Seoul', 'New York', 'Mumbai', 'Tokyo', 'Sydney', 'Cairo', 'Moscow'];
 
-// 체감온도 임계점 하향 (극단 이전 '위협' 구간부터 점수 인정)
-const HEAT_THRESHOLD = 35;
-const COLD_THRESHOLD = -15;
+// 체감온도 임계점 (30°C/-10°C부터 점수 시작 — 더 넓은 변동폭)
+const HEAT_THRESHOLD = 30;
+const COLD_THRESHOLD = -10;
 
 // 극단 기상 코드 → 위협 점수 (0~2점 범위)
 const EXTREME_WEATHER_SCORES = {
@@ -25,7 +25,7 @@ const EXTREME_WEATHER_SCORES = {
 };
 const weatherConditionScore = (id) => {
   if (EXTREME_WEATHER_SCORES[id] !== undefined) return EXTREME_WEATHER_SCORES[id];
-  if (id >= 200 && id <= 232) return 0.8; // 뇌우
+  if (id >= 200 && id <= 232) return 1.2; // 뇌우
   return 0;
 };
 

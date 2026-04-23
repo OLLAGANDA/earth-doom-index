@@ -5,7 +5,7 @@ const axios = require('axios');
 // 변동률 기반 자산: threshold 초과 시 선형 증가, 최대 maxScore점
 // VIX는 레벨 기반이라 별도 처리
 const CHANGE_ASSETS = [
-  { name: 'S&P 500',  ticker: '^GSPC', threshold: 2, maxScore: 10 },
+  { name: 'S&P 500',  ticker: '^GSPC', threshold: 1, maxScore: 10 },
   { name: '금 선물',  ticker: 'GC=F',  threshold: 2, maxScore:  5 },
   { name: 'WTI 원유', ticker: 'CL=F',  threshold: 3, maxScore:  5 },
 ];
@@ -25,12 +25,14 @@ const changeToScore = (changeRate, threshold, maxScore) => {
 };
 
 // VIX 레벨 → 점수 (0~10): 공포지수는 수준 자체가 위협 척도
+// VIX 10부터 반응 시작 — 평상시에도 소폭 기여
 const vixToScore = (vix) => {
-  if (vix < 15) return 0;
-  if (vix < 20) return lerp(vix, 15, 20,  0, 2);
-  if (vix < 30) return lerp(vix, 20, 30,  2, 6);
-  if (vix < 40) return lerp(vix, 30, 40,  6, 9);
-  return Math.min(lerp(vix, 40, 60, 9, 10), 10);
+  if (vix < 10) return 0;
+  if (vix < 15) return lerp(vix, 10, 15,  0, 2);
+  if (vix < 20) return lerp(vix, 15, 20,  2, 5);
+  if (vix < 30) return lerp(vix, 20, 30,  5, 8);
+  if (vix < 40) return lerp(vix, 30, 40,  8, 9.5);
+  return Math.min(lerp(vix, 40, 60, 9.5, 10), 10);
 };
 
 const fetchAssetChange = async (asset) => {
