@@ -457,7 +457,7 @@ function App() {
       <section className="nes-container is-dark with-title title-section">
         <p className="game-subtitle">EARTH DOOM INDEX</p>
         <p className="game-tagline">{t.tagline}</p>
-        <p className={`total-score nes-text ${totalColor}`}>
+        <p className={`total-score nes-text ${dangerCls}`}>
           {data.total_score}
           <span className="score-max"> / 100</span>
         </p>
