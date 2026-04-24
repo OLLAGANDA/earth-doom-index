@@ -38,6 +38,8 @@ async function loadPressStart2PFont() {
 }
 
 export default async function handler() {
+  // Edge Function은 Vite 빌드 파이프라인 밖에서 실행되므로 import.meta.env 사용 불가.
+  // Vercel 프로젝트 설정에서 VITE_API_URL과 별도로 API_URL을 설정해야 함.
   const API_BASE = process.env.API_URL ?? ''
 
   let score = null
@@ -46,7 +48,7 @@ export default async function handler() {
   let dateStr = ''
 
   try {
-    const res = await fetch(`${API_BASE}/api/today-doom`)
+    const res = await fetch(`${API_BASE}/api/today-doom`, { signal: AbortSignal.timeout(3000) })
     if (res.ok) {
       const data = await res.json()
       score = data.total_score

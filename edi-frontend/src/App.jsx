@@ -378,7 +378,7 @@ function ShareButtons({ score, dangerLabel, lang }) {
     ? `오늘 지구 멸망 지수: ${score}점 — ${dangerLabel}`
     : `Today's Earth Doom Index: ${score}/100 — ${dangerLabel}`
   const twitterUrl =
-    `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
+    `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
 
   const handleCopy = async () => {
     try {
@@ -518,7 +518,7 @@ function App() {
         </p>
         <p className={`danger-badge nes-text ${dangerCls}`}>{dangerLabel}</p>
         <p className="game-date">{dateStr}</p>
-        <ShareButtons score={data.total_score} dangerLabel={dangerLabel} lang={lang} />
+        <ShareButtons score={data.total_score ?? 0} dangerLabel={dangerLabel} lang={lang} />
       </section>
 
       {/* 중단: AI 코멘터리 대화창 */}
