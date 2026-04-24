@@ -4,6 +4,7 @@
     { "src": "api/og.js", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/api/og", "dest": "api/og.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/" }
   ]
