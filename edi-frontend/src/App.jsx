@@ -371,6 +371,7 @@ function VoteSection({ todayDoomDate, lang }) {
 
 function ShareButtons({ score, dangerLabel, lang }) {
   const [copied, setCopied] = useState(false)
+  const copyTimerRef = useRef(null)
   const t = translations[lang].share
   const shareUrl = 'https://www.earthdoomindex.com'
   const tweetText = lang === 'ko'
@@ -383,11 +384,28 @@ function ShareButtons({ score, dangerLabel, lang }) {
     try {
       await navigator.clipboard.writeText(shareUrl)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
     } catch (_) {
-      // clipboard 접근 실패 시 무시
+      try {
+        const el = document.createElement('textarea')
+        el.value = shareUrl
+        document.body.appendChild(el)
+        el.select()
+        document.execCommand('copy')
+        document.body.removeChild(el)
+        setCopied(true)
+        if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+        copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
+      } catch (_) {
+        // 두 방법 모두 실패 시 조용히 무시 (보안 컨텍스트 외)
+      }
     }
   }
+
+  useEffect(() => () => {
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+  }, [])
 
   return (
     <div className="share-buttons">
