@@ -72,6 +72,11 @@ export const translations = {
       wrong: '예측 실패',
       totalVoters: (n) => `${n}명 투표`,
     },
+    share: {
+      twitter: '트위터 공유',
+      copy: '링크 복사',
+      copied: '복사됨!',
+    },
   },
   en: {
     loading: 'Calculating Earth Doom Index...',
@@ -145,6 +150,11 @@ export const translations = {
       correct: 'PREDICTION CORRECT',
       wrong: 'PREDICTION WRONG',
       totalVoters: (n) => `${n} VOTES`,
+    },
+    share: {
+      twitter: 'SHARE',
+      copy: 'COPY LINK',
+      copied: 'COPIED!',
     },
   },
 }
