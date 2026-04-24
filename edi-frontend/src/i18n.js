@@ -12,10 +12,12 @@ export const translations = {
     cardInfoSource: (source, max) => `출처: ${source} | 최대: ${max}점`,
     dateLocale: 'ko-KR',
     dangerLevel: {
-      critical: '위험',
-      danger: '경고',
-      caution: '주의',
-      safe: '안전',
+      doom:     '결과는 명백함',
+      critical: '회복 불가',
+      danger:   '임계점 근접',
+      caution:  '가속 중',
+      notice:   '이상 징후 감지',
+      safe:     '평온한 착각',
     },
     cards: {
       society: {
@@ -84,10 +86,12 @@ export const translations = {
     cardInfoSource: (source, max) => `Source: ${source} | Max: ${max}pts`,
     dateLocale: 'en-US',
     dangerLevel: {
-      critical: 'CRITICAL',
-      danger: 'DANGER',
-      caution: 'CAUTION',
-      safe: 'SAFE',
+      doom:     'OUTCOME IS CLEAR',
+      critical: 'BEYOND RECOVERY',
+      danger:   'NEAR CRITICAL',
+      caution:  'ACCELERATING',
+      notice:   'ANOMALY DETECTED',
+      safe:     'PEACEFUL ILLUSION',
     },
     cards: {
       society: {

@@ -91,6 +91,14 @@ body {
   50% { opacity: 0; }
 }
 
+/* ───── 커스텀 레벨 색상 (nes.css 보완) ───── */
+.doom-lime {
+  color: #b8d941 !important; /* 연두 — 이상 징후 감지 */
+}
+.doom-orange {
+  color: #f0a844 !important; /* 주황 — 임계점 근접 */
+}
+
 /* ───── 메인 레이아웃 ───── */
 .game-screen {
   display: flex;

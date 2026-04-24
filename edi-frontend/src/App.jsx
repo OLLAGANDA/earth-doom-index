@@ -61,10 +61,12 @@ function scoreColor(score, max) {
 }
 
 function dangerLevel(score, t) {
-  if (score >= 70) return { label: t.dangerLevel.critical, cls: 'is-error blink' }
-  if (score >= 50) return { label: t.dangerLevel.danger,   cls: 'is-error' }
-  if (score >= 30) return { label: t.dangerLevel.caution,  cls: 'is-warning' }
-  return           { label: t.dangerLevel.safe,     cls: 'is-success' }
+  if (score >= 86) return { label: t.dangerLevel.doom,     cls: 'is-error blink' }  // 빨강 깜빡
+  if (score >= 71) return { label: t.dangerLevel.critical, cls: 'is-error' }        // 빨강
+  if (score >= 51) return { label: t.dangerLevel.danger,   cls: 'doom-orange' }     // 주황
+  if (score >= 31) return { label: t.dangerLevel.caution,  cls: 'is-warning' }      // 노랑
+  if (score >= 16) return { label: t.dangerLevel.notice,   cls: 'doom-lime' }       // 연두
+  return                   { label: t.dangerLevel.safe,    cls: 'is-success' }      // 초록
 }
 
 // todayDoomDate: data.target_date (서버 기준 오늘 날짜, 'YYYY-MM-DD')
