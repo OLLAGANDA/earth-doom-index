@@ -530,3 +530,18 @@ body {
     overflow-wrap: break-word;
   }
 }
+
+/* ───── 공유 버튼 ───── */
+.share-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  font-size: 9px !important;
+  padding: 6px 14px !important;
+  text-decoration: none !important;
+}
