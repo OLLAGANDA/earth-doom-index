@@ -21,21 +21,27 @@ function getDangerInfo(score) {
 }
 
 async function loadPressStart2PFont() {
-  const css = await fetch(
-    'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
-    { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36' } }
-  ).then(r => r.text())
-
-  const fontUrl = css.match(/url\((.+?\.woff2)\)/)?.[1]
-  if (!fontUrl) return null
-  return fetch(fontUrl).then(r => r.arrayBuffer())
+  try {
+    const css = await fetch(
+      'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
+      {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36' },
+        signal: AbortSignal.timeout(3000),
+      }
+    ).then(r => r.text())
+    const fontUrl = css.match(/url\((https:\/\/.+?\.woff2)\)/)?.[1]
+    if (!fontUrl) return null
+    return fetch(fontUrl, { signal: AbortSignal.timeout(3000) }).then(r => r.arrayBuffer())
+  } catch {
+    return null
+  }
 }
 
 export default async function handler() {
-  const API_BASE = process.env.VITE_API_URL ?? ''
+  const API_BASE = process.env.API_URL ?? ''
 
   let score = null
-  let dangerInfo = { label: 'EARTH DOOM INDEX', color: '#aaaaaa' }
+  let dangerInfo = { label: 'DATA UNAVAILABLE', color: '#aaaaaa' }
   let commentary = ''
   let dateStr = ''
 
@@ -47,8 +53,10 @@ export default async function handler() {
       dangerInfo = getDangerInfo(score)
       const raw = data.ai_commentary_en ?? ''
       commentary = raw.length > 80 ? raw.slice(0, 80) + '...' : raw
-      const d = new Date(data.target_date)
-      dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+      const d = data.target_date ? new Date(data.target_date) : null
+      if (d && !isNaN(d.getTime())) {
+        dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+      }
     }
   } catch (_) {
     // 폴백: 점수 없이 타이틀만 표시
@@ -92,7 +100,7 @@ export default async function handler() {
         {score !== null ? (
           <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '24px' }}>
             <span style={{ fontSize: '128px', color: dangerInfo.color, lineHeight: 1 }}>
-              {score}
+              {String(score)}
             </span>
             <span style={{ fontSize: '36px', color: '#555555', marginLeft: '12px' }}>
               / 100
@@ -163,10 +171,6 @@ export default async function handler() {
     }
   )
 
-  return new Response(imageResponse.body, {
-    headers: {
-      'Content-Type': 'image/png',
-      'Cache-Control': 's-maxage=86400, stale-while-revalidate',
-    },
-  })
+  imageResponse.headers.set('Cache-Control', 's-maxage=86400, stale-while-revalidate')
+  return imageResponse
 }
