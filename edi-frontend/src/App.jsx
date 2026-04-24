@@ -386,7 +386,7 @@ function ShareButtons({ score, dangerLabel, lang }) {
       setCopied(true)
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
       copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
-    } catch (_) {
+    } catch {
       try {
         const el = document.createElement('textarea')
         el.value = shareUrl
@@ -397,7 +397,7 @@ function ShareButtons({ score, dangerLabel, lang }) {
         setCopied(true)
         if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
         copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
-      } catch (_) {
+      } catch {
         // 두 방법 모두 실패 시 조용히 무시 (보안 컨텍스트 외)
       }
     }
@@ -498,7 +498,6 @@ function App() {
     )
   }
 
-  const totalColor = scoreColor(data.total_score ?? 0, 100)
   const { label: dangerLabel, cls: dangerCls } = dangerLevel(data.total_score ?? 0, t)
   const rawDate = new Date(data.target_date)
   const dateStr = isNaN(rawDate.getTime()) ? '-' : rawDate.toLocaleDateString(t.dateLocale)

@@ -1,3 +1,4 @@
+/* global process */
 import { ImageResponse } from '@vercel/og'
 
 export const config = { runtime: 'edge' }
@@ -60,7 +61,7 @@ export default async function handler() {
         dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
       }
     }
-  } catch (_) {
+  } catch {
     // 폴백: 점수 없이 타이틀만 표시
   }
 
