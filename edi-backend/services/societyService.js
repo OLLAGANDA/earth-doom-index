@@ -93,10 +93,11 @@ const parseGDELTStream = (url) => {
           };
 
           const score = calcScore(weightedThreat);
-          const label = weightedThreat >= 240 ? '심각한 전쟁·대량폭력'
-            : weightedThreat >= 160 ? '대규모 무력충돌·테러'
-            : weightedThreat >= 100 ? '상당한 분쟁·군사위협'
-            : weightedThreat >=  50 ? '국지적 분쟁·시위'
+          const label = weightedThreat >= 2000 ? '세계적 임계 사건'
+            : weightedThreat >= 1000 ? '다지역 전면전·고강도 위협'
+            : weightedThreat >=  500 ? '활성 무력충돌·중대 분쟁'
+            : weightedThreat >=  200 ? '국지 분쟁·국제 갈등 고조'
+            : weightedThreat >=   50 ? '일상적 국지 시위·외교 마찰'
             : null;
 
           resolve({
