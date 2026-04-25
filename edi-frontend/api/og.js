@@ -1,10 +1,20 @@
 /* global process */
 import { ImageResponse } from '@vercel/og'
-import React from 'react'
 
 export const config = { runtime: 'edge' }
 
-const el = React.createElement
+const REACT_ELEMENT = Symbol.for('react.element')
+
+function el(type, props, ...children) {
+  const flat = children.flat().filter(c => c !== null && c !== undefined && c !== false)
+  return {
+    $$typeof: REACT_ELEMENT,
+    type,
+    key: null,
+    ref: null,
+    props: { ...(props || {}), children: flat.length === 1 ? flat[0] : flat },
+  }
+}
 
 const SCORE_COLORS = {
   doom:     '#e63946',
