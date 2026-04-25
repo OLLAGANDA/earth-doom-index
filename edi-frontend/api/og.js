@@ -76,10 +76,7 @@ export default async function handler() {
     // 폴백: 점수 없이 렌더
   }
 
-  const fontData = await loadPressStart2PFont().catch(() => null)
-  const fonts = fontData
-    ? [{ name: 'Press Start 2P', data: fontData, style: 'normal', weight: 400 }]
-    : []
+  const fonts = []
 
   const tree = el('div', {
     style: {
