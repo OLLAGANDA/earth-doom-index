@@ -1,3 +1,4 @@
+/* global process */
 import { ImageResponse } from '@vercel/og'
 
 export const config = { runtime: 'edge' }
@@ -14,7 +15,20 @@ function el(type, props, ...children) {
   }
 }
 
-export default function handler() {
+export default async function handler() {
+  const API_BASE = process.env.VITE_API_URL ?? ''
+
+  let score = null
+  try {
+    const res = await fetch(`${API_BASE}/api/today-doom`, { signal: AbortSignal.timeout(3000) })
+    if (res.ok) {
+      const data = await res.json()
+      score = data.total_score
+    }
+  } catch {
+    // 폴백: 점수 없이 렌더
+  }
+
   const tree = el('div', {
     style: {
       display: 'flex',
@@ -25,12 +39,11 @@ export default function handler() {
       justifyContent: 'center',
       background: '#212529',
       color: '#ffffff',
-      fontSize: '40px',
     },
   },
-    el('div', { style: { display: 'flex' } }, 'TWO CHILD TEST'),
-    el('div', { style: { display: 'flex' } }, 'SECOND ROW')
+    el('div', { style: { display: 'flex', fontSize: '24px', color: '#888888', marginBottom: '20px' } }, 'EARTH DOOM INDEX'),
+    el('div', { style: { display: 'flex', fontSize: '160px', color: '#ffffff' } }, score !== null ? String(score) : '—')
   )
 
-  return new ImageResponse(tree, { width: 600, height: 400 })
+  return new ImageResponse(tree, { width: 1200, height: 630 })
 }
