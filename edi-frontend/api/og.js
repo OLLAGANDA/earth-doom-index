@@ -34,23 +34,6 @@ function getDangerInfo(score) {
   return               { label: 'PEACEFUL ILLUSION', color: SCORE_COLORS.safe }
 }
 
-async function loadPressStart2PFont() {
-  try {
-    const css = await fetch(
-      'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
-      {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36' },
-        signal: AbortSignal.timeout(3000),
-      }
-    ).then(r => r.text())
-    const fontUrl = css.match(/url\((https:\/\/.+?\.woff2)\)/)?.[1]
-    if (!fontUrl) return null
-    return fetch(fontUrl, { signal: AbortSignal.timeout(3000) }).then(r => r.arrayBuffer())
-  } catch {
-    return null
-  }
-}
-
 export default async function handler() {
   const API_BASE = process.env.VITE_API_URL ?? ''
 
