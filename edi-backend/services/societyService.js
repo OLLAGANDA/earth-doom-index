@@ -69,18 +69,19 @@ const parseGDELTStream = (url) => {
           console.log(`- 위협 이벤트: ${rawThreatCount}건 (가중합산: ${weightedThreat.toFixed(1)})`);
 
           // 가중 위협 합산 → 점수 구간 선형 보간 (0~30점)
-          // 단순 카운트 대비 평균 가중치(~1.6x)를 반영해 구간 조정
+          // 비대칭 가중치 × log10(mentions+1) 결과를 시나리오 기반 7구간으로 매핑
           const BREAKPOINTS = [
-            { count:   0, score:  0 },
-            { count:  50, score:  5 },
-            { count: 100, score: 12 },
-            { count: 160, score: 20 },
-            { count: 240, score: 26 },
-            { count: 320, score: 30 },
+            { count:    0, score:  0 },
+            { count:   50, score:  3 },
+            { count:  200, score: 10 },
+            { count:  500, score: 16 },
+            { count: 1000, score: 21 },
+            { count: 2000, score: 26 },
+            { count: 4000, score: 30 },
           ];
           const lerp = (x, x0, x1, y0, y1) => y0 + (y1 - y0) * (x - x0) / (x1 - x0);
           const calcScore = (n) => {
-            if (n >= 320) return 30;
+            if (n >= 4000) return 30;
             for (let i = 1; i < BREAKPOINTS.length; i++) {
               if (n <= BREAKPOINTS[i].count) {
                 const { count: x0, score: y0 } = BREAKPOINTS[i - 1];
