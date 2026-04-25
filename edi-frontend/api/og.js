@@ -5,14 +5,21 @@ export const config = { runtime: 'edge' }
 
 const REACT_ELEMENT = Symbol.for('react.element')
 
+let _key = 0
 function el(type, props, ...children) {
   const flat = children.flat().filter(c => c !== null && c !== undefined && c !== false)
+  const keyed = flat.map(c => {
+    if (c && typeof c === 'object' && c.$$typeof === REACT_ELEMENT && c.key === null) {
+      return { ...c, key: String(++_key) }
+    }
+    return c
+  })
   return {
     $$typeof: REACT_ELEMENT,
     type,
     key: null,
     ref: null,
-    props: { ...(props || {}), children: flat.length === 1 ? flat[0] : flat },
+    props: { ...(props || {}), children: keyed.length === 1 ? keyed[0] : keyed },
   }
 }
 
