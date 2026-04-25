@@ -65,42 +65,13 @@ export default async function handler() {
     style: {
       width: '1200px', height: '630px', background: '#212529',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      fontFamily: fonts.length ? '"Press Start 2P"' : 'monospace',
-      color: '#ffffff', padding: '60px', position: 'relative',
+      fontFamily: 'monospace',
+      color: '#ffffff', padding: '60px',
     },
   },
-    el('div', { style: { fontSize: '18px', color: '#888888', marginBottom: '12px', letterSpacing: '3px', display: 'flex' } }, 'EARTH DOOM INDEX'),
-    dateStr
-      ? el('div', { style: { fontSize: '12px', color: '#555555', marginBottom: '36px', display: 'flex' } }, dateStr)
-      : null,
-    score !== null
-      ? el('div', { style: { display: 'flex', alignItems: 'baseline', marginBottom: '24px' } },
-          el('span', { style: { fontSize: '128px', color: dangerInfo.color, lineHeight: 1 } }, String(score)),
-          el('span', { style: { fontSize: '36px', color: '#555555', marginLeft: '12px' } }, '/ 100')
-        )
-      : el('div', { style: { fontSize: '48px', color: '#555555', marginBottom: '24px', display: 'flex' } }, '— / 100'),
-    el('div', {
-      style: {
-        fontSize: '22px', color: dangerInfo.color,
-        border: `3px solid ${dangerInfo.color}`,
-        padding: '10px 24px', marginBottom: '36px', letterSpacing: '2px', display: 'flex',
-      },
-    }, dangerInfo.label),
-    commentary
-      ? el('div', {
-          style: {
-            fontSize: '13px', color: '#aaaaaa', maxWidth: '900px',
-            textAlign: 'center', lineHeight: '1.8',
-            display: 'flex', flexWrap: 'wrap', justifyContent: 'center',
-          },
-        }, `"${commentary}"`)
-      : null,
-    el('div', {
-      style: {
-        position: 'absolute', bottom: '28px', right: '40px',
-        fontSize: '11px', color: '#444444', display: 'flex',
-      },
-    }, 'earthdoomindex.com')
+    el('div', { style: { fontSize: '18px', color: '#888888', marginBottom: '12px', display: 'flex' } }, 'EARTH DOOM INDEX'),
+    el('div', { style: { fontSize: '128px', color: dangerInfo.color, marginBottom: '24px', display: 'flex' } }, score !== null ? String(score) : '—'),
+    el('div', { style: { fontSize: '22px', color: dangerInfo.color, display: 'flex' } }, dangerInfo.label)
   )
 
   const imageResponse = new ImageResponse(tree, { width: 1200, height: 630, fonts })
