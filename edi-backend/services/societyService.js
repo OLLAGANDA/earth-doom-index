@@ -48,6 +48,8 @@ const parseGDELTStream = (url) => {
         let weightedThreat = 0;
         let rawThreatCount = 0;
         let totalLines = 0;
+        let mentionsSum = 0;
+        let mentionsMax = 0;
 
         rl.on('line', (line) => {
           totalLines++;
@@ -55,18 +57,20 @@ const parseGDELTStream = (url) => {
           const eventRootCode = cols[EVENT_ROOT_CODE_INDEX];
           const weight = THREAT_WEIGHTS[eventRootCode];
           if (weight) {
-            // NumMentions 정수 파싱 — 실패 시 0, 음수도 0으로 보정
             const mentionsRaw = parseInt(cols[NUM_MENTIONS_INDEX], 10);
             const mentions = Number.isFinite(mentionsRaw) && mentionsRaw > 0 ? mentionsRaw : 0;
-            // log10(mentions+1) — 0 mentions 사건은 0 기여, 큰 사건일수록 가중
             weightedThreat += weight * Math.log10(mentions + 1);
             rawThreatCount++;
+            mentionsSum += mentions;
+            if (mentions > mentionsMax) mentionsMax = mentions;
           }
         });
 
         rl.on('close', () => {
+          const mentionsAvg = rawThreatCount > 0 ? mentionsSum / rawThreatCount : 0;
           console.log(`📊 파싱 완료: 총 ${totalLines}건의 이벤트 분석됨`);
           console.log(`- 위협 이벤트: ${rawThreatCount}건 (가중합산: ${weightedThreat.toFixed(1)})`);
+          console.log(`- NumMentions 평균: ${mentionsAvg.toFixed(1)}, 최대: ${mentionsMax}`);
 
           // 가중 위협 합산 → 점수 구간 선형 보간 (0~30점)
           // 비대칭 가중치 × log10(mentions+1) 결과를 시나리오 기반 7구간으로 매핑
