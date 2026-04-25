@@ -57,8 +57,10 @@ const parseGDELTStream = (url) => {
           const eventRootCode = cols[EVENT_ROOT_CODE_INDEX];
           const weight = THREAT_WEIGHTS[eventRootCode];
           if (weight) {
+            // NumMentions 정수 파싱 — 실패 시 0, 음수도 0으로 보정
             const mentionsRaw = parseInt(cols[NUM_MENTIONS_INDEX], 10);
             const mentions = Number.isFinite(mentionsRaw) && mentionsRaw > 0 ? mentionsRaw : 0;
+            // log10(mentions+1) — 0 mentions 사건은 0 기여, 큰 사건일수록 가중
             weightedThreat += weight * Math.log10(mentions + 1);
             rawThreatCount++;
             mentionsSum += mentions;
