@@ -15,23 +15,6 @@ function el(type, props, ...children) {
   }
 }
 
-async function loadPressStart2PFont() {
-  try {
-    const css = await fetch(
-      'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
-      {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36' },
-        signal: AbortSignal.timeout(3000),
-      }
-    ).then(r => r.text())
-    const fontUrl = css.match(/url\((https:\/\/.+?\.woff2)\)/)?.[1]
-    if (!fontUrl) return null
-    return fetch(fontUrl, { signal: AbortSignal.timeout(3000) }).then(r => r.arrayBuffer())
-  } catch {
-    return null
-  }
-}
-
 function getDangerInfo(score) {
   if (score === null) return { label: 'DATA UNAVAILABLE', color: '#aaaaaa' }
   if (score >= 86) return { label: 'DOOM',             color: '#e63946' }
@@ -66,11 +49,6 @@ export default async function handler() {
 
   const danger = getDangerInfo(score)
 
-  const fontData = await loadPressStart2PFont().catch(() => null)
-  const fonts = fontData
-    ? [{ name: 'Press Start 2P', data: fontData, style: 'normal', weight: 400 }]
-    : []
-
   const tree = el('div', {
     style: {
       display: 'flex',
@@ -82,7 +60,6 @@ export default async function handler() {
       background: '#212529',
       color: '#ffffff',
       position: 'relative',
-      fontFamily: fonts.length ? '"Press Start 2P"' : 'monospace',
     },
   },
     el('div', { style: { display: 'flex', fontSize: '24px', color: '#888888', marginBottom: '8px', letterSpacing: '4px' } }, 'EARTH DOOM INDEX'),
@@ -124,5 +101,5 @@ export default async function handler() {
     }, 'earthdoomindex.com')
   )
 
-  return new ImageResponse(tree, { width: 1200, height: 630, fonts })
+  return new ImageResponse(tree, { width: 1200, height: 630 })
 }
