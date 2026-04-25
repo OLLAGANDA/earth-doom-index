@@ -1,7 +1,10 @@
 /* global process */
 import { ImageResponse } from '@vercel/og'
+import React from 'react'
 
 export const config = { runtime: 'edge' }
+
+const el = React.createElement
 
 const SCORE_COLORS = {
   doom:     '#e63946',
@@ -37,12 +40,6 @@ async function loadPressStart2PFont() {
     return null
   }
 }
-
-const el = (type, props, ...children) => ({
-  type,
-  props: { ...(props || {}), children: children.length === 1 ? children[0] : children },
-  key: null,
-})
 
 export default async function handler() {
   const API_BASE = process.env.VITE_API_URL ?? ''
