@@ -30,6 +30,7 @@ export default async function handler() {
 
   let score = null
   let commentary = ''
+  let dateStr = ''
   try {
     const res = await fetch(`${API_BASE}/api/today-doom`, { signal: AbortSignal.timeout(3000) })
     if (res.ok) {
@@ -37,6 +38,10 @@ export default async function handler() {
       score = data.total_score
       const raw = data.ai_commentary_en ?? ''
       commentary = raw.length > 80 ? raw.slice(0, 80) + '...' : raw
+      const d = data.target_date ? new Date(data.target_date) : null
+      if (d && !isNaN(d.getTime())) {
+        dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+      }
     }
   } catch {
     // 폴백
@@ -56,7 +61,10 @@ export default async function handler() {
       color: '#ffffff',
     },
   },
-    el('div', { style: { display: 'flex', fontSize: '24px', color: '#888888', marginBottom: '20px', letterSpacing: '4px' } }, 'EARTH DOOM INDEX'),
+    el('div', { style: { display: 'flex', fontSize: '24px', color: '#888888', marginBottom: '8px', letterSpacing: '4px' } }, 'EARTH DOOM INDEX'),
+    dateStr
+      ? el('div', { style: { display: 'flex', fontSize: '14px', color: '#555555', marginBottom: '24px' } }, dateStr)
+      : null,
     el('div', { style: { display: 'flex', fontSize: '160px', color: danger.color, marginBottom: '20px' } }, score !== null ? String(score) : '—'),
     el('div', {
       style: {
