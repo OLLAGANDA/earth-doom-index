@@ -59,6 +59,7 @@ export default async function handler() {
       justifyContent: 'center',
       background: '#212529',
       color: '#ffffff',
+      position: 'relative',
     },
   },
     el('div', { style: { display: 'flex', fontSize: '24px', color: '#888888', marginBottom: '8px', letterSpacing: '4px' } }, 'EARTH DOOM INDEX'),
@@ -87,7 +88,17 @@ export default async function handler() {
             textAlign: 'center',
           },
         }, `"${commentary}"`)
-      : null
+      : null,
+    el('div', {
+      style: {
+        position: 'absolute',
+        bottom: '28px',
+        right: '40px',
+        display: 'flex',
+        fontSize: '14px',
+        color: '#444444',
+      },
+    }, 'earthdoomindex.com')
   )
 
   return new ImageResponse(tree, { width: 1200, height: 630 })
