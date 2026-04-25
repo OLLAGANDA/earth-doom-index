@@ -29,11 +29,14 @@ export default async function handler() {
   const API_BASE = process.env.VITE_API_URL ?? ''
 
   let score = null
+  let commentary = ''
   try {
     const res = await fetch(`${API_BASE}/api/today-doom`, { signal: AbortSignal.timeout(3000) })
     if (res.ok) {
       const data = await res.json()
       score = data.total_score
+      const raw = data.ai_commentary_en ?? ''
+      commentary = raw.length > 80 ? raw.slice(0, 80) + '...' : raw
     }
   } catch {
     // 폴백
@@ -63,8 +66,20 @@ export default async function handler() {
         padding: '12px 28px',
         border: `3px solid ${danger.color}`,
         letterSpacing: '3px',
+        marginBottom: '36px',
       },
-    }, danger.label)
+    }, danger.label),
+    commentary
+      ? el('div', {
+          style: {
+            display: 'flex',
+            fontSize: '18px',
+            color: '#aaaaaa',
+            maxWidth: '900px',
+            textAlign: 'center',
+          },
+        }, `"${commentary}"`)
+      : null
   )
 
   return new ImageResponse(tree, { width: 1200, height: 630 })
