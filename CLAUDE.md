@@ -8,22 +8,33 @@
 
 ```
 DoomIndex/
-├── edi-backend/        # Express.js API 서버
-│   ├── index.js        # 서버 진입점, 라우트, 크론 스케줄러
-│   ├── gdeltService.js # 사회 위협 지수 (GDELT)
-│   ├── climateService.js # 기후 위협 지수 (OpenWeather)
-│   ├── economyService.js # 경제 위협 지수
-│   ├── solarService.js # 태양 위협 지수
-│   ├── aiService.js    # AI 해설 생성 (Gemini)
-│   ├── testRunner.js   # 서비스 테스트 실행기
+├── edi-backend/            # Express.js API 서버
+│   ├── index.js            # 서버 진입점, 미들웨어, 라우트 마운트
+│   ├── scheduler.js        # 크론 스케줄러 (일일 멸망 지수 계산)
+│   ├── testRunner.js       # 서비스 dry-run 테스트 실행기
+│   ├── routes/
+│   │   └── doom.js         # /api/today-doom, /api/doom-history 라우트
+│   ├── services/
+│   │   ├── societyService.js # 사회 위협 지수 (GDELT, CAMEO 가중합산)
+│   │   ├── climateService.js # 기후 위협 지수 (OpenWeather)
+│   │   ├── economyService.js # 경제 위협 지수 (Yahoo Finance)
+│   │   ├── solarService.js   # 태양 위협 지수 (NOAA SWPC)
+│   │   └── aiService.js      # AI 해설 생성 (Gemini)
+│   ├── db/
+│   │   └── index.js        # PostgreSQL Pool, doom_records CRUD
 │   ├── Dockerfile
 │   ├── docker-compose.yml
 │   └── package.json
-└── edi-frontend/       # React + Vite 프론트엔드
+└── edi-frontend/           # React + Vite 프론트엔드
+    ├── api/
+    │   └── og.js           # Vercel Edge OG 이미지 생성 (@vercel/og)
     └── src/
-        ├── App.jsx     # 메인 컴포넌트 (데이터 fetch, 레이아웃)
-        ├── App.css     # 스타일 (nes.css 기반, 반응형)
-        └── DoomChart.jsx # 트렌드 차트 (recharts)
+        ├── main.jsx        # React 진입점
+        ├── App.jsx         # 메인 컴포넌트 (데이터 fetch, 레이아웃)
+        ├── App.css         # 스타일 (nes.css 기반, 반응형)
+        ├── index.css       # 전역 스타일
+        ├── i18n.js         # ko/en 번역 사전
+        └── DoomChart.jsx   # 트렌드 차트 (recharts)
 ```
 
 ## 기술 스택
@@ -41,10 +52,14 @@ DoomIndex/
 ## 개발 환경 실행
 
 ```bash
-# 백엔드 (API + DB)
+# 백엔드 (API + DB) — 홈서버 운영용
 cd edi-backend
 docker compose up -d
 docker compose logs -f edi-api
+
+# 로컬 개발용 DB만 띄우기 (포트 5432)
+cd edi-backend
+docker compose -f docker-compose.local.yml up -d
 
 # 프론트엔드
 cd edi-frontend
@@ -75,7 +90,8 @@ VITE_API_URL=   # 백엔드 API 주소 (미설정 시 동일 origin)
 | 서비스 | 포트 | 용도 |
 |--------|------|------|
 | edi-api | 3000 | Cloudflare Tunnel 연결 |
-| edi-db | 5432 | 로컬 DB 툴 접속 (UFW로 외부 차단) |
+| edi-db (운영) | 5433 | 홈서버 운영 DB (`docker-compose.yml`) |
+| edi-db-local (개발) | 5432 | 로컬 개발 DB (`docker-compose.local.yml`) |
 
 ## 주요 API
 
