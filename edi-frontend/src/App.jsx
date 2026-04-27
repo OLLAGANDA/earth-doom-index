@@ -88,19 +88,6 @@ function getVotePhase(todayDoomDate) {
   return 'open'
 }
 
-function useLang() {
-  const [lang, setLang] = useState(() => {
-    const saved = localStorage.getItem('edi-lang')
-    if (saved === 'ko' || saved === 'en') return saved
-    return navigator.language.startsWith('ko') ? 'ko' : 'en'
-  })
-  const toggle = () => setLang(l => {
-    const next = l === 'ko' ? 'en' : 'ko'
-    localStorage.setItem('edi-lang', next)
-    return next
-  })
-  return { lang, toggle }
-}
 
 const VOTE_BASE_URL = `${BASE_URL}/api/vote`
 
@@ -426,10 +413,9 @@ function ShareButtons({ score, dangerLabel, lang }) {
   )
 }
 
-function App() {
+function App({ lang, onToggleLang }) {
   const { data, loading, error } = useDoomData()
   const historyData = useDoomHistory()
-  const { lang, toggle } = useLang()
   const t = translations[lang]
 
   // historyData는 target_date 오름차순 정렬 기준 — 마지막 항목=오늘, 그 전=어제
@@ -446,7 +432,7 @@ function App() {
   if (loading) {
     return (
       <>
-        <TopNav lang={lang} onToggle={toggle} />
+        <TopNav lang={lang} onToggle={onToggleLang} />
         <div className="screen-center">
           <div className="nes-container is-dark">
             <p className="nes-text is-primary blink">{t.loadingTitle}</p>
@@ -460,7 +446,7 @@ function App() {
   if (error) {
     return (
       <>
-        <TopNav lang={lang} onToggle={toggle} />
+        <TopNav lang={lang} onToggle={onToggleLang} />
         <div className="screen-center">
           <div className="nes-container is-dark is-rounded">
             <p className="nes-text is-error">{t.systemError}</p>
@@ -474,7 +460,7 @@ function App() {
   if (data?.message) {
     return (
       <>
-        <TopNav lang={lang} onToggle={toggle} />
+        <TopNav lang={lang} onToggle={onToggleLang} />
         <div className="screen-center">
           <div className="nes-container is-dark">
             <p className="nes-text is-warning">{t.noData}</p>
@@ -491,7 +477,7 @@ function App() {
 
   return (
     <>
-    <TopNav lang={lang} onToggle={toggle} />
+    <TopNav lang={lang} onToggle={onToggleLang} />
     <div className="game-screen">
 
       {/* 상단: 타이틀 + 총점 */}
