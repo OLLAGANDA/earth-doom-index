@@ -55,14 +55,17 @@ export default function PageHead({ title, description, path, koPath, enPath, jso
     setLink('alternate', `${SITE_URL}${enPath ?? path}`, 'x-default')
 
     // JSON-LD
-    const existingJsonLd = document.head.querySelector('script[data-page-jsonld]')
-    if (existingJsonLd) existingJsonLd.remove()
+    const existingJsonLd = document.head.querySelectorAll('script[data-page-jsonld]')
+    existingJsonLd.forEach(el => el.remove())
     if (jsonLd) {
-      const script = document.createElement('script')
-      script.type = 'application/ld+json'
-      script.setAttribute('data-page-jsonld', 'true')
-      script.textContent = JSON.stringify(jsonLd)
-      document.head.appendChild(script)
+      const items = Array.isArray(jsonLd) ? jsonLd : [jsonLd]
+      for (const item of items) {
+        const script = document.createElement('script')
+        script.type = 'application/ld+json'
+        script.setAttribute('data-page-jsonld', 'true')
+        script.textContent = JSON.stringify(item)
+        document.head.appendChild(script)
+      }
     }
   }, [title, description, path, koPath, enPath, jsonLd])
 
@@ -76,13 +79,14 @@ export default function PageHead({ title, description, path, koPath, enPath, jso
       <link rel="alternate" hrefLang="ko" href={`${SITE_URL}${koPath ?? path}`} />
       <link rel="alternate" hrefLang="en" href={`${SITE_URL}${enPath ?? path}`} />
       <link rel="alternate" hrefLang="x-default" href={`${SITE_URL}${enPath ?? path}`} />
-      {jsonLd && (
+      {jsonLd && (Array.isArray(jsonLd) ? jsonLd : [jsonLd]).map((data, i) => (
         <script
+          key={i}
           type="application/ld+json"
           data-page-jsonld="true"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
         />
-      )}
+      ))}
     </>
   )
 }
