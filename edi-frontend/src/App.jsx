@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import DoomChart from './DoomChart.jsx'
 import TopNav from './components/TopNav.jsx'
+import Footer from './components/Footer.jsx'
 import { translations } from './i18n.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''
@@ -590,24 +591,7 @@ function App() {
       <DoomChart historyData={historyData} t={t.chart} />
 
       {/* 푸터 */}
-      <footer className="site-footer">
-        <div className="footer-row">
-          <a
-            href="https://github.com/OLLAGANDA/earth-doom-index"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-link"
-          >
-            GITHUB
-          </a>
-          <span className="footer-sep">|</span>
-          <span>© 2026 EARTH DOOM INDEX</span>
-          <span className="footer-sep">|</span>
-          <button className="terms-btn" onClick={() => setShowTerms(true)}>{t.terms}</button>
-          <span className="footer-sep">|</span>
-          <a href="mailto:dev782108@gmail.com" className="footer-link">CONTACT</a>
-        </div>
-      </footer>
+      <Footer t={t} onShowTerms={() => setShowTerms(true)} />
 
       {selectedCard && (
         <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
