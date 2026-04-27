@@ -1,35 +1,55 @@
 import { useOutletContext } from 'react-router-dom'
 import PageHead from '../seo/PageHead.jsx'
+import AboutCard from '../components/AboutCard.jsx'
 import { breadcrumbJsonLd, organizationJsonLd } from '../seo/jsonLd.js'
 
+const TOPICS = ['society', 'climate', 'economy', 'solar']
+
 export default function AboutIndex() {
-  const { lang } = useOutletContext()
+  const { lang, t } = useOutletContext()
+  const a = t.about
 
   const title = lang === 'ko'
-    ? 'Earth Doom Index 지표 설명'
-    : 'About — Earth Doom Index'
-  const description = lang === 'ko'
-    ? '사회·기후·경제·태양 4개 영역의 위협 지수 측정 방식과 데이터 출처를 자세히 알아보세요.'
-    : 'How the four threat indices of Earth Doom Index (society, climate, economy, solar) are measured and sourced.'
+    ? 'Earth Doom Index 지표 설명 — 4개 위협 지수 측정 방식'
+    : 'About — Earth Doom Index Methodology'
 
   const breadcrumb = breadcrumbJsonLd([
-    { name: lang === 'ko' ? '홈' : 'Home', path: `/${lang}` },
-    { name: lang === 'ko' ? '지표 설명' : 'About', path: `/${lang}/about` },
+    { name: a.breadcrumbHome, path: `/${lang}` },
+    { name: a.breadcrumbAbout, path: `/${lang}/about` },
   ])
 
   return (
     <>
       <PageHead
         title={title}
-        description={description}
+        description={a.indexLead}
         path={`/${lang}/about`}
         koPath="/ko/about"
         enPath="/en/about"
         jsonLd={[organizationJsonLd(), breadcrumb]}
       />
       <main className="about-index">
-        <h1>{lang === 'ko' ? '지표 설명' : 'About the Indices'}</h1>
-        <p>{description}</p>
+        <h1>{a.indexTitle}</h1>
+        <p className="about-lead">{a.indexLead}</p>
+        <div className="about-cards">
+          {TOPICS.map(topic => (
+            <AboutCard
+              key={topic}
+              lang={lang}
+              topic={topic}
+              label={a.topicLabels[topic]}
+              description={a.topicShortDesc[topic]}
+            />
+          ))}
+        </div>
+        <div className="about-methodology">
+          <AboutCard
+            lang={lang}
+            topic="methodology"
+            label={a.topicLabels.methodology}
+            description={a.topicShortDesc.methodology}
+          />
+        </div>
       </main>
     </>
   )
