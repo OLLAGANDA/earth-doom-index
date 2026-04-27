@@ -620,3 +620,32 @@ body {
   gap: 8px;
   margin-top: 16px;
 }
+
+.explainer-section {
+  margin: 24px 0;
+}
+
+.explainer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+}
+
+.explainer-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.explainer-cta {
+  margin-top: 8px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .explainer-cards {
+    grid-template-columns: 1fr;
+  }
+}

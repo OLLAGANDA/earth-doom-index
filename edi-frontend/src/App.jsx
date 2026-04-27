@@ -576,6 +576,23 @@ function App({ lang, onToggleLang }) {
       {/* 트렌드 차트 */}
       <DoomChart historyData={historyData} t={t.chart} />
 
+      {/* Explainer 섹션 */}
+      <section className="nes-container is-dark with-title explainer-section">
+        <p className="title">📐 {t.about.mainExplainerTitle}</p>
+        <div className="explainer-body">
+          <p>{t.about.mainExplainerLead}</p>
+          <div className="explainer-cards">
+            <a href={`/${lang}/about/society`} className="nes-btn">{t.about.topicLabels.society} →</a>
+            <a href={`/${lang}/about/climate`} className="nes-btn">{t.about.topicLabels.climate} →</a>
+            <a href={`/${lang}/about/economy`} className="nes-btn">{t.about.topicLabels.economy} →</a>
+            <a href={`/${lang}/about/solar`} className="nes-btn">{t.about.topicLabels.solar} →</a>
+          </div>
+          <a href={`/${lang}/about/methodology`} className="nes-btn is-primary explainer-cta">
+            {t.about.mainExplainerCta}
+          </a>
+        </div>
+      </section>
+
       {/* 푸터 */}
       <Footer lang={lang} t={t} onShowTerms={() => setShowTerms(true)} />
 
