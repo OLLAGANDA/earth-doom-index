@@ -6,7 +6,7 @@
 
 **Architecture:** React + Vite SPA에 `react-router-dom`과 `vite-react-ssg`를 도입해 빌드 시점에 15개 정적 HTML을 생성한다. MDX(`@mdx-js/rollup`)로 콘텐츠를 작성하고, `App.jsx`에서 `TopNav`/`Footer`를 분리해 `/about/*` 페이지에서 재사용한다. 모든 페이지에 페이지별 `<title>`/`<meta>`/canonical/hreflang/JSON-LD를 주입한다.
 
-**Tech Stack:** React 19, Vite 8, react-router-dom v6, vite-react-ssg, @mdx-js/rollup, @mdx-js/react, nes.css (기존), recharts (기존)
+**Tech Stack:** React 19, Vite 7 (다운그레이드 — `vite-react-ssg`가 vite 8 미지원), react-router-dom v6, vite-react-ssg, @mdx-js/rollup, @mdx-js/react, nes.css (기존), recharts (기존)
 
 **Spec:** `docs/superpowers/specs/2026-04-26-explainer-pages-design.md`
 
@@ -57,20 +57,30 @@ edi-frontend/public/sitemap.xml          # 14개 신규 URL
 **Files:**
 - Modify: `edi-frontend/package.json`
 
-- [ ] **Step 1: 의존성 추가 명령 실행**
+**플랜 수정 메모 (2026-04-27):** `vite-react-ssg@0.9.1-beta.1`(latest)는 `vite ^7.0.0`까지만 peerDep을 선언한다. 현재 프로젝트는 `vite ^8.0.0`이므로 `vite`와 `@vitejs/plugin-react`를 다운그레이드한 뒤 신규 deps를 설치한다.
+
+- [ ] **Step 1: vite, plugin-react 다운그레이드**
 
 ```bash
 cd edi-frontend
+npm install --save-dev vite@^7.0.0 @vitejs/plugin-react@^5.0.0
+```
+
+(`@vitejs/plugin-react@6.x`는 vite 8 전용. vite 7에는 `5.x`를 짝지운다.)
+
+- [ ] **Step 2: 신규 의존성 추가 명령 실행**
+
+```bash
 npm install react-router-dom vite-react-ssg @mdx-js/rollup @mdx-js/react gray-matter
 ```
 
 `gray-matter`는 MDX frontmatter 파싱용.
 
-- [ ] **Step 2: package.json 확인**
+- [ ] **Step 3: package.json 확인**
 
-`dependencies`에 `react-router-dom`, `vite-react-ssg`, `@mdx-js/rollup`, `@mdx-js/react`, `gray-matter` 5개가 추가됐는지 확인한다.
+`dependencies`에 `react-router-dom`, `vite-react-ssg`, `@mdx-js/rollup`, `@mdx-js/react`, `gray-matter` 5개가 추가됐는지 확인. `devDependencies`의 `vite`가 `^7.x`, `@vitejs/plugin-react`가 `^5.x` 인지 확인.
 
-- [ ] **Step 3: build 명령 변경**
+- [ ] **Step 4: build 명령 변경**
 
 `edi-frontend/package.json`의 `scripts.build`를 다음으로 수정:
 
@@ -81,11 +91,19 @@ npm install react-router-dom vite-react-ssg @mdx-js/rollup @mdx-js/react gray-ma
 
 `build:spa`는 디버깅용 fallback (SSG 문제 발생 시 SPA-only 빌드 가능).
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: dev 서버 정상 기동 확인**
+
+```bash
+npm run dev
+```
+
+기존 `/` 페이지가 정상 렌더되는지 브라우저에서 확인 후 종료.
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add package.json package-lock.json
-git commit -m "chore(frontend): add react-router, MDX, vite-react-ssg deps"
+git commit -m "chore(frontend): downgrade vite to 7, add react-router, MDX, vite-react-ssg deps"
 ```
 
 ---
