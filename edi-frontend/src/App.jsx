@@ -577,7 +577,7 @@ function App({ lang, onToggleLang }) {
       <DoomChart historyData={historyData} t={t.chart} />
 
       {/* 푸터 */}
-      <Footer t={t} onShowTerms={() => setShowTerms(true)} />
+      <Footer lang={lang} t={t} onShowTerms={() => setShowTerms(true)} />
 
       {selectedCard && (
         <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
