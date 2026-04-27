@@ -589,12 +589,20 @@ function App({ lang, onToggleLang }) {
                 {t.cardInfoSource(t.cards[selectedCard].source, CARD_INFO[selectedCard].max)}
               </p>
             </div>
-            <button
-              className="nes-btn is-error modal-close"
-              onClick={() => setSelectedCard(null)}
-            >
-              {t.termsClose}
-            </button>
+            <div className="modal-actions">
+              <a
+                href={`/${lang}/about/${selectedCard}`}
+                className="nes-btn is-primary"
+              >
+                {t.about.learnMore}
+              </a>
+              <button
+                className="nes-btn is-error modal-close"
+                onClick={() => setSelectedCard(null)}
+              >
+                {t.termsClose}
+              </button>
+            </div>
           </div>
         </div>
       )}
