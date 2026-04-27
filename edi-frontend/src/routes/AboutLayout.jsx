@@ -33,7 +33,7 @@ export default function AboutLayout() {
       <div className="about-screen">
         <Outlet context={{ lang, t }} />
       </div>
-      <Footer t={t} onShowTerms={() => setShowTerms(true)} />
+      <Footer lang={lang} t={t} onShowTerms={() => setShowTerms(true)} />
       {showTerms && (
         <div className="modal-overlay" onClick={() => setShowTerms(false)}>
           <div className="modal-box nes-container is-dark" onClick={e => e.stopPropagation()}>
