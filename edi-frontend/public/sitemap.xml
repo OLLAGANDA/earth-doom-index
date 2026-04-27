@@ -1,8 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://www.earthdoomindex.com/</loc>
+    <loc>https://www.earthdoomindex.com/ko</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/en</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/ko/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/en/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/ko/about/society</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/society"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/society"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/society"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/en/about/society</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/society"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/society"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/society"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/ko/about/climate</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/climate"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/climate"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/climate"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/en/about/climate</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/climate"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/climate"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/climate"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/ko/about/economy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/economy"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/economy"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/economy"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/en/about/economy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/economy"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/economy"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/economy"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/ko/about/solar</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/solar"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/solar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/solar"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/en/about/solar</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/solar"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/solar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/solar"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/ko/about/methodology</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/methodology"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/methodology"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/methodology"/>
+  </url>
+  <url>
+    <loc>https://www.earthdoomindex.com/en/about/methodology</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.earthdoomindex.com/ko/about/methodology"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.earthdoomindex.com/en/about/methodology"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.earthdoomindex.com/en/about/methodology"/>
   </url>
 </urlset>
