@@ -1,44 +1,77 @@
 import { useOutletContext, useParams, Navigate } from 'react-router-dom'
-import { lazy, Suspense, useMemo } from 'react'
+import { lazy, Suspense, useMemo, useState, useEffect } from 'react'
+import PageHead from '../seo/PageHead.jsx'
+import { articleJsonLd, breadcrumbJsonLd, organizationJsonLd } from '../seo/jsonLd.js'
 
 const VALID_TOPICS = ['society', 'climate', 'economy', 'solar', 'methodology']
-
-// MDX 파일을 동적 import — Vite가 빌드 시점에 코드 스플리팅
 const mdxModules = import.meta.glob('../content/*/*.mdx')
 
 function loadMdx(lang, topic) {
   const path = `../content/${lang}/${topic}.mdx`
   const loader = mdxModules[path]
   if (!loader) return null
-  return lazy(() => loader())
+  return {
+    Component: lazy(() => loader().then(m => ({ default: m.default }))),
+    metaPromise: loader().then(m => m.meta ?? {}),
+  }
 }
 
 export default function AboutTopic() {
   const { lang, t } = useOutletContext()
   const { topic } = useParams()
+  const [meta, setMeta] = useState(null)
 
-  if (!VALID_TOPICS.includes(topic)) {
+  const a = t.about
+  const valid = VALID_TOPICS.includes(topic)
+  const loaded = useMemo(() => (valid ? loadMdx(lang, topic) : null), [valid, lang, topic])
+
+  useEffect(() => {
+    if (loaded) loaded.metaPromise.then(setMeta)
+  }, [loaded])
+
+  if (!valid || !loaded) {
     return <Navigate to={`/${lang}/about`} replace />
   }
 
-  const MdxComponent = useMemo(() => loadMdx(lang, topic), [lang, topic])
+  const path = `/${lang}/about/${topic}`
+  const koPath = `/ko/about/${topic}`
+  const enPath = `/en/about/${topic}`
 
-  if (!MdxComponent) {
-    return <Navigate to={`/${lang}/about`} replace />
-  }
+  const breadcrumb = breadcrumbJsonLd([
+    { name: a.breadcrumbHome, path: `/${lang}` },
+    { name: a.breadcrumbAbout, path: `/${lang}/about` },
+    { name: a.topicLabels[topic], path },
+  ])
+  const article = meta ? articleJsonLd({
+    title: meta.title,
+    description: meta.description,
+    path,
+    datePublished: meta.publishedAt,
+    lang,
+  }) : null
 
   return (
-    <main className="about-topic">
-      <nav className="breadcrumb">
-        <a href={`/${lang}`}>{lang === 'ko' ? '홈' : 'Home'}</a>
-        {' > '}
-        <a href={`/${lang}/about`}>{lang === 'ko' ? '지표 설명' : 'About'}</a>
-        {' > '}
-        <span>{topic}</span>
-      </nav>
-      <Suspense fallback={<p>Loading...</p>}>
-        <MdxComponent />
-      </Suspense>
-    </main>
+    <>
+      <PageHead
+        title={meta?.title}
+        description={meta?.description}
+        path={path}
+        koPath={koPath}
+        enPath={enPath}
+        jsonLd={article ? [organizationJsonLd(), breadcrumb, article] : [organizationJsonLd(), breadcrumb]}
+      />
+      <main className="about-topic">
+        <nav className="breadcrumb">
+          <a href={`/${lang}`}>{a.breadcrumbHome}</a>
+          {' > '}
+          <a href={`/${lang}/about`}>{a.breadcrumbAbout}</a>
+          {' > '}
+          <span>{a.topicLabels[topic]}</span>
+        </nav>
+        <Suspense fallback={<p>Loading...</p>}>
+          <loaded.Component />
+        </Suspense>
+      </main>
+    </>
   )
 }
