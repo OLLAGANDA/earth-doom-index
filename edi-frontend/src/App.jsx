@@ -3,6 +3,8 @@ import './App.css'
 import DoomChart from './DoomChart.jsx'
 import TopNav from './components/TopNav.jsx'
 import Footer from './components/Footer.jsx'
+import PageHead from './seo/PageHead.jsx'
+import { organizationJsonLd } from './seo/jsonLd.js'
 import { translations } from './i18n.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''
@@ -477,6 +479,18 @@ function App({ lang, onToggleLang }) {
 
   return (
     <>
+    <PageHead
+      title={lang === 'ko'
+        ? 'Earth Doom Index — 오늘 지구는 얼마나 망했나?'
+        : 'Earth Doom Index — How Close Is Earth to Doom Today?'}
+      description={lang === 'ko'
+        ? 'DOOM-9000이 매일 계산하는 지구 멸망 지수. 사회·기후·경제·태양 4개 영역 위협을 종합한 0~100점.'
+        : 'Daily Earth Doom Index calculated by DOOM-9000. A 0–100 score combining society, climate, economy, and solar threat signals.'}
+      path={`/${lang}`}
+      koPath="/ko"
+      enPath="/en"
+      jsonLd={organizationJsonLd()}
+    />
     <TopNav lang={lang} onToggle={onToggleLang} />
     <div className="game-screen">
 
