@@ -1,10 +1,11 @@
 import { useOutletContext, useParams, Navigate } from 'react-router-dom'
-import { lazy, Suspense, useMemo, useState, useEffect } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import PageHead from '../seo/PageHead.jsx'
 import { articleJsonLd, breadcrumbJsonLd, organizationJsonLd } from '../seo/jsonLd.js'
 
 const VALID_TOPICS = ['society', 'climate', 'economy', 'solar', 'methodology']
 const mdxModules = import.meta.glob('../content/*/*.mdx')
+const mdxMeta = import.meta.glob('../content/*/*.mdx', { import: 'meta', eager: true })
 
 function loadMdx(lang, topic) {
   const path = `../content/${lang}/${topic}.mdx`
@@ -12,27 +13,23 @@ function loadMdx(lang, topic) {
   if (!loader) return null
   return {
     Component: lazy(() => loader().then(m => ({ default: m.default }))),
-    metaPromise: loader().then(m => m.meta ?? {}),
+    meta: mdxMeta[path] ?? {},
   }
 }
 
 export default function AboutTopic() {
   const { lang, t } = useOutletContext()
   const { topic } = useParams()
-  const [meta, setMeta] = useState(null)
 
   const a = t.about
   const valid = VALID_TOPICS.includes(topic)
   const loaded = useMemo(() => (valid ? loadMdx(lang, topic) : null), [valid, lang, topic])
 
-  useEffect(() => {
-    if (loaded) loaded.metaPromise.then(setMeta)
-  }, [loaded])
-
   if (!valid || !loaded) {
     return <Navigate to={`/${lang}/about`} replace />
   }
 
+  const { meta } = loaded
   const path = `/${lang}/about/${topic}`
   const koPath = `/ko/about/${topic}`
   const enPath = `/en/about/${topic}`
@@ -42,23 +39,23 @@ export default function AboutTopic() {
     { name: a.breadcrumbAbout, path: `/${lang}/about` },
     { name: a.topicLabels[topic], path },
   ])
-  const article = meta ? articleJsonLd({
+  const article = articleJsonLd({
     title: meta.title,
     description: meta.description,
     path,
     datePublished: meta.publishedAt,
     lang,
-  }) : null
+  })
 
   return (
     <>
       <PageHead
-        title={meta?.title}
-        description={meta?.description}
+        title={meta.title}
+        description={meta.description}
         path={path}
         koPath={koPath}
         enPath={enPath}
-        jsonLd={article ? [organizationJsonLd(), breadcrumb, article] : [organizationJsonLd(), breadcrumb]}
+        jsonLd={[organizationJsonLd(), breadcrumb, article]}
       />
       <main className="about-topic">
         <nav className="breadcrumb">
