@@ -18,11 +18,14 @@ export default function AboutIndex() {
     { name: a.breadcrumbAbout, path: `/${lang}/about` },
   ])
 
+  const leadParagraphs = a.indexLead.split('\n\n')
+  const metaDescription = leadParagraphs[0]
+
   return (
     <>
       <PageHead
         title={title}
-        description={a.indexLead}
+        description={metaDescription}
         path={`/${lang}/about`}
         koPath="/ko/about"
         enPath="/en/about"
@@ -31,7 +34,11 @@ export default function AboutIndex() {
       />
       <main className="about-index">
         <h1>{a.indexTitle}</h1>
-        <p className="about-lead">{a.indexLead}</p>
+        <div className="about-lead">
+          {leadParagraphs.map((para, i) => (
+            <p key={i}>{para}</p>
+          ))}
+        </div>
         <div className="about-cards">
           {TOPICS.map(topic => (
             <AboutCard
