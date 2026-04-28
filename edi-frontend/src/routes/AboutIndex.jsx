@@ -27,6 +27,7 @@ export default function AboutIndex() {
         koPath="/ko/about"
         enPath="/en/about"
         jsonLd={[organizationJsonLd(), breadcrumb]}
+        noindex={lang === 'en'}
       />
       <main className="about-index">
         <h1>{a.indexTitle}</h1>
