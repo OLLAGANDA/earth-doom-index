@@ -676,3 +676,155 @@ body {
   color: #888;
   margin-top: 4px;
 }
+
+/* about-index 페이지 레이아웃 */
+.about-index {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.about-index h1 {
+  font-size: 1.4em;
+  margin-bottom: 16px;
+}
+
+.about-lead {
+  font-size: 0.9em;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  opacity: 0.95;
+}
+
+.about-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-methodology {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px dashed #555;
+}
+
+/* AboutCard polish */
+.about-card {
+  position: relative;
+  display: block;
+  padding: 24px 20px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+
+.about-card:hover,
+.about-card:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 #e76e55;
+  outline: none;
+}
+
+.about-card-desc {
+  font-size: 0.85em;
+  line-height: 1.6;
+  margin: 8px 0 12px;
+}
+
+.about-card-cta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.8em;
+  color: #e76e55;
+  margin-bottom: 0;
+}
+
+.about-card-cta-arrow {
+  transition: transform 0.1s ease-out;
+}
+
+.about-card:hover .about-card-cta-arrow,
+.about-card:focus-visible .about-card-cta-arrow {
+  transform: translateX(4px);
+}
+
+.about-card-chevron {
+  display: none;
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 1.4em;
+  color: #e76e55;
+}
+
+/* about-topic 페이지 (MDX 본문 영역) — 가독성 baseline */
+.about-topic {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.about-topic h1 {
+  font-size: 1.4em;
+  margin-bottom: 8px;
+}
+
+.about-topic h2 {
+  font-size: 1.05em;
+  margin-top: 28px;
+  margin-bottom: 8px;
+}
+
+.about-topic h3 {
+  font-size: 0.95em;
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.about-topic p,
+.about-topic li {
+  font-size: 0.85em;
+  line-height: 1.8;
+}
+
+.about-topic ul,
+.about-topic ol {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.about-topic code {
+  background: #2a2a2a;
+  padding: 2px 6px;
+  font-size: 0.9em;
+}
+
+.breadcrumb {
+  font-size: 0.75em;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.breadcrumb a {
+  color: #88c;
+  text-decoration: underline;
+}
+
+/* 모바일 (≤640px) */
+@media (max-width: 640px) {
+  .about-card {
+    padding: 20px 16px;
+  }
+  .about-card-cta {
+    display: none;
+  }
+  .about-card-chevron {
+    display: block;
+  }
+  .about-methodology {
+    margin-top: 16px;
+    padding-top: 12px;
+  }
+}
