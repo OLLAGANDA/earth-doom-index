@@ -13,6 +13,11 @@ function setMeta(name, content, attr = 'name') {
   el.setAttribute('content', content)
 }
 
+function removeMeta(name, attr = 'name') {
+  const el = document.head.querySelector(`meta[${attr}="${name}"]`)
+  if (el) el.remove()
+}
+
 function setLink(rel, href, hreflang) {
   if (!href) return
   const selector = hreflang
@@ -37,8 +42,9 @@ function setLink(rel, href, hreflang) {
  * @param koPath - 한국어 짝 경로 (없으면 path)
  * @param enPath - 영어 짝 경로 (없으면 path)
  * @param jsonLd - 구조화 데이터 객체 또는 배열 (없으면 생략)
+ * @param noindex - true면 robots noindex,follow 메타 주입 (Phase 2: en placeholder용)
  */
-export default function PageHead({ title, description, path, koPath, enPath, jsonLd }) {
+export default function PageHead({ title, description, path, koPath, enPath, jsonLd, noindex }) {
   useEffect(() => {
     if (title) document.title = title
 
@@ -48,6 +54,12 @@ export default function PageHead({ title, description, path, koPath, enPath, jso
     setMeta('og:url', `${SITE_URL}${path}`, 'property')
     setMeta('twitter:title', title)
     setMeta('twitter:description', description)
+
+    if (noindex) {
+      setMeta('robots', 'noindex, follow')
+    } else {
+      removeMeta('robots')
+    }
 
     setLink('canonical', `${SITE_URL}${path}`)
     setLink('alternate', `${SITE_URL}${koPath ?? path}`, 'ko')
@@ -67,14 +79,14 @@ export default function PageHead({ title, description, path, koPath, enPath, jso
         document.head.appendChild(script)
       }
     }
-  }, [title, description, path, koPath, enPath, jsonLd])
+  }, [title, description, path, koPath, enPath, jsonLd, noindex])
 
   // SSG 시점에는 useEffect가 안 돌므로, prerender HTML에 박히도록 정적 fallback 렌더
-  // vite-react-ssg는 SSR 시 document가 없으므로 head 조작 대신 React 19의 native head support 사용
   return (
     <>
       {title && <title>{title}</title>}
       {description && <meta name="description" content={description} />}
+      {noindex && <meta name="robots" content="noindex, follow" />}
       <link rel="canonical" href={`${SITE_URL}${path}`} />
       <link rel="alternate" hrefLang="ko" href={`${SITE_URL}${koPath ?? path}`} />
       <link rel="alternate" hrefLang="en" href={`${SITE_URL}${enPath ?? path}`} />
