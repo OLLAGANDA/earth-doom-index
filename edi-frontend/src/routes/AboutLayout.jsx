@@ -19,6 +19,10 @@ export default function AboutLayout() {
     localStorage.setItem('edi-lang', lang)
   }, [lang])
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+
   const onToggleLang = () => {
     const next = lang === 'ko' ? 'en' : 'ko'
     localStorage.setItem('edi-lang', next)

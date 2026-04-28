@@ -1,22 +1,8 @@
 import { Link } from 'react-router-dom'
 
-const TOPICS = ['society', 'climate', 'economy', 'solar', 'methodology']
-
 export default function Footer({ lang, t, onShowTerms }) {
-  const a = t.about
-
   return (
     <footer className="site-footer">
-      <div className="footer-row footer-about">
-        {TOPICS.map(topic => (
-          <span key={topic}>
-            <Link to={`/${lang}/about/${topic}`} className="footer-link">
-              {a.topicLabels[topic].replace(/^\S+\s/, '')}
-            </Link>
-            <span className="footer-sep">|</span>
-          </span>
-        ))}
-      </div>
       <div className="footer-row">
         <a
           href="https://github.com/OLLAGANDA/earth-doom-index"
@@ -26,6 +12,10 @@ export default function Footer({ lang, t, onShowTerms }) {
         >
           GITHUB
         </a>
+        <span className="footer-sep">|</span>
+        <Link to={`/${lang}/about`} className="footer-link">
+          {t.about.navLabel}
+        </Link>
         <span className="footer-sep">|</span>
         <span>© 2026 EARTH DOOM INDEX</span>
         <span className="footer-sep">|</span>

@@ -99,9 +99,6 @@ export const translations = {
         solar: 'NOAA SWPC 기반 태양 활동·지자기 폭풍 측정',
         methodology: '4개 지수 종합 및 0~100 점수 산정 방식',
       },
-      mainExplainerTitle: '이 점수는 어떻게 계산되나요?',
-      mainExplainerLead: 'DOOM-9000은 4개 영역의 위협을 종합합니다.',
-      mainExplainerCta: '전체 산정 방법론 자세히 보기 →',
     },
   },
   en: {
@@ -204,9 +201,6 @@ export const translations = {
         solar: 'Solar activity and geomagnetic storms — based on NOAA SWPC',
         methodology: 'How the four indices combine into a 0–100 score',
       },
-      mainExplainerTitle: 'How is this score calculated?',
-      mainExplainerLead: 'DOOM-9000 combines threats from four domains.',
-      mainExplainerCta: 'Read full methodology →',
     },
   },
 }
