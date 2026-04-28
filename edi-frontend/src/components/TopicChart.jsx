@@ -55,6 +55,8 @@ export default function TopicChart({ kind, days = 30 }) {
 
   useEffect(() => {
     let cancelled = false
+    // 재시도/days 변경 시 loading 표시를 위한 초기화. cancelled 가드가 race 보호.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setState({ status: 'loading', data: [], error: null })
     const apiBase = import.meta.env.VITE_API_URL ?? ''
     fetch(`${apiBase}/api/doom-history?days=${days}`)
