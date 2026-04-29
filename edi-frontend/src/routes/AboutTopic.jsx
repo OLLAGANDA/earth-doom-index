@@ -56,7 +56,6 @@ export default function AboutTopic() {
         koPath={koPath}
         enPath={enPath}
         jsonLd={[organizationJsonLd(), breadcrumb, article]}
-        noindex={lang === 'en'}
       />
       <main className="about-topic">
         <nav className="breadcrumb">
