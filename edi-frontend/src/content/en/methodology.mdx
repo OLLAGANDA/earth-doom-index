@@ -1,24 +1,79 @@
 ---
-title: "Earth Doom Index Methodology"
-description: "How the four threat indices of Earth Doom Index combine into a 0–100 daily doom score."
-keywords: ["doom index methodology", "threat index calculation"]
-publishedAt: "2026-04-26"
+title: "Earth Doom Index Methodology — 4 Domains, DOOM-9000 Composite, 6 Risk Tiers"
+description: "How Earth Doom Index combines Society, Climate, Economy, and Solar threat scores into a 0–100 composite called DOOM-9000, assigns a 6-tier risk classification, and updates once daily at UTC 00:01."
+keywords: ["Earth Doom Index", "methodology", "DOOM-9000", "risk tiers", "composite score"]
+publishedAt: "2026-04-28"
 ---
 
 export const meta = {
-  title: "Earth Doom Index Methodology",
-  description: "How the four threat indices of Earth Doom Index combine into a 0–100 daily doom score.",
-  publishedAt: "2026-04-26",
+  title: "Earth Doom Index Methodology — 4 Domains, DOOM-9000 Composite, 6 Risk Tiers",
+  description: "How Earth Doom Index combines Society, Climate, Economy, and Solar threat scores into a 0–100 composite called DOOM-9000, assigns a 6-tier risk classification, and updates once daily at UTC 00:01.",
+  publishedAt: "2026-04-28",
 }
 
 import CrossLinks from '../../components/CrossLinks.jsx'
 
-# Methodology
+# Earth Doom Index Methodology
 
-This page is under construction.
+Every morning, four independent data pipelines — Society, Climate, Economy, and Solar — each produce a number. **DOOM-9000** is what happens when you add them together. The result is a 0–100 composite score calculated once per day, then labeled with one of six risk tiers ranging from PEACEFUL ILLUSION to OUTCOME IS CLEAR. This page explains the addition, the labels, the timing, and — more importantly — the design choices that live inside all three.
 
-Earth Doom Index combines four domain scores — society (0–30), climate (0–30), economy (0–30), and solar (0–10) — into a 0–100 daily doom score. Per-domain calculation details are on each topic page.
+## 1. How DOOM-9000 Is Calculated
 
-A full algorithmic breakdown is coming soon.
+DOOM-9000 is a **simple sum** across four domain scores:
+
+`totalScore = societyScore + climateScore + economyScore + solarScore`
+
+Society, Climate, and Economy each contribute 0–30 points. Solar contributes 0–10. The natural ceiling is therefore 100, with no weighting coefficient applied after the fact. Each domain converts its raw data into its 0–30 or 0–10 range internally — using piecewise linear normalization — before anything is added together. The summation in `scheduler.js` sees only the already-normalized domain scores.
+
+Why normalize inside each domain before summing? Because the raw units are incommensurable. GDELT counts weighted event mentions. OpenWeather returns weather condition codes and feels-like temperatures. Yahoo Finance gives you a volatility index and percentage drawdowns. NOAA SWPC reports a dimensionless planetary K-index and X-ray flux in watts per square meter. Adding any of those raw values together directly would produce a number that meant nothing. Each domain's normalization step answers the question "how bad is this, on a scale of 0 to 30?" before the domains are combined. Only at that point does addition become meaningful.
+
+The per-domain range choices — three domains at 0–30, one at 0–10 — are not mathematically derived. They are operational calibration decisions: solar activity is quiet on the vast majority of days, and a 0–30 solar scale would produce a flat line with occasional spikes that still barely register. The 0–10 cap keeps solar honest about its typical contribution without inflating the baseline. The individual domain pages explain the internal normalization in detail.
+
+## 2. Per-Domain Weighting and Normalization
+
+Each domain's normalization logic is summarized here. Full derivations live on the per-topic pages.
+
+- **Society (0–30)** — GDELT CAMEO root code weighted sum. Only conflict and threat codes are selected: code 20 carries weight 30, code 19 carries weight 5, code 18 carries weight 4, codes 17/15/13 each carry weight 1, and code 14 (protests) carries weight 0.2. Each event's contribution is scaled by `log10(mentions + 1)` to prevent heavily-covered stories from warping the day's total. The resulting weighted sum is mapped to 0–30 via 7-segment piecewise linear interpolation using BREAKPOINTS `[50, 200, 500, 1000, 2000, 4000]`.
+
+- **Climate (0–30)** — Real-time conditions from 7 anchor cities: Seoul, New York, Mumbai, Tokyo, Sydney, Cairo, and Moscow. Each city scores 0–6 based on feels-like temperature, extreme weather codes, heat-humidity index, and AQI. The seven per-city scores are summed and clipped to 30. Simultaneous distress across multiple cities is what actually moves this number.
+
+- **Economy (0–30)** — Five market stress signals: VIX, S&P 500 daily change (absolute value), S&P 500 1-year drawdown, HYG drawdown, and yield curve inversion (10Y − 3M). Each signal is converted to stress points via its own piecewise threshold table, the five point totals are summed, and the raw stress sum is mapped to the 0–30 output scale using:
+
+  `SCORE_BREAKPOINTS = [(0,0), (5,3), (12,8), (20,14), (28,20), (36,26), (42,30)]`
+
+  Each pair is (raw stress sum, output score). Values above 42 are clipped at 30. Single-signal spikes produce modest output; reaching the ceiling requires multiple instruments deteriorating together.
+
+- **Solar (0–10)** — Kp index score (0–7 points) plus X-ray flare score (0–3 points), clipped at 10. The asymmetric 0–10 ceiling and the full rationale are explained on the Solar threat page.
+
+**Equal weighting across the four domains is a deliberate design choice.** It is not a claim that a geomagnetic storm is as dangerous as a global financial crisis, or that market volatility and armed conflict are interchangeable. It is a decision to avoid encoding subjective politics into the model. The moment you assign Society a weight of 40 and Economy a weight of 20, the composite score starts reflecting the designer's priorities rather than the data. Equal weighting is the least opinionated baseline: all four domains get 30 points (or 10 in solar's case), nobody's favorite crisis gets a structural advantage, and the score is harder to accuse of having a political thumb on the scale. If the data eventually accumulates enough to suggest that one domain is genuinely more predictive of real-world outcomes, the weights can be revisited. Until then, equal is defensible.
+
+## 3. Risk Tier Thresholds
+
+The composite 0–100 score is bucketed into six tiers. The same thresholds appear in `App.jsx`'s `dangerLevel` function and in `api/og.js`'s `getDangerInfo` function, which generates Open Graph images:
+
+| Score | Tier | Meaning |
+|---|---|---|
+| 86–100 | OUTCOME IS CLEAR (DOOM) | All 4 domains simultaneously extreme — scenario threshold |
+| 71–85 | BEYOND RECOVERY (CRITICAL) | Multi-domain crisis; short-term recovery unlikely |
+| 51–70 | NEAR CRITICAL (DANGER) | Clear stress visible in 2–3 domains |
+| 31–50 | ACCELERATING (CAUTION) | Elevated above baseline in 1–2 domains |
+| 16–30 | ANOMALY DETECTED (NOTICE) | Slightly above baseline noise |
+| 0–15 | PEACEFUL ILLUSION (SAFE) | Ordinary calm — but "illusion" |
+
+These cutoffs are **operationally chosen round numbers**, not statistical quantiles derived from historical data. The distribution of actual DOOM-9000 scores over time was not used to place the tier boundaries — the boundaries were placed first, by intuition about what different composite magnitudes might mean, and the score distribution is only now beginning to accumulate. If future data reveals that 90% of days land in NOTICE and SAFE, the boundaries may shift. For now, they are honest guesses about severity intervals, nothing more.
+
+The SAFE tier deserves special comment. Calling it "PEACEFUL ILLUSION" is not an attempt to make a low score sound ominous. It is an explicit acknowledgment that a score of 0–15 does not mean the world is actually fine — it means that the four signals this project tracks happen to be quiet today. DOOM-9000 does not measure chronic environmental debt accumulating over decades. It does not measure structural poverty, nuclear deterrence stability, biodiversity loss, or the thousand slow-moving catastrophes that generate no single news event and no daily volatility spike. A score of 5 on a given morning is genuinely "not much going on in our four sensors." It is not a certification that humanity's situation is under control. The label holds both truths simultaneously: yes, today is calm; no, that does not mean everything is fine. The index is a toy. The threats it does not capture are not.
+
+## 4. Update Cadence and Timing
+
+The scheduler runs once per day at **UTC 00:01**, triggered by:
+
+`cron.schedule('1 0 * * *', ..., { timezone: 'UTC' })`
+
+At that moment, all four data services — GDELT (Society), OpenWeather (Climate), Yahoo Finance (Economy), and NOAA SWPC (Solar) — are called in parallel. Results are written to the `doom_records` PostgreSQL table using a **target_date 1-row-per-day UPSERT**: if a record already exists for that date (because the job ran twice or was manually re-triggered for debugging), the existing row is updated rather than duplicated. One date, one row, always.
+
+For users in Korea (UTC+9), the daily score becomes visible at approximately **09:01 KST** — first thing on a weekday morning, which is a perfectly reasonable time to learn how the world is doing.
+
+The UTC 00:01 timing was not chosen arbitrarily. It aligns with the moment when U.S. equity and bond markets have closed for the day and Yahoo Finance's daily data has settled. The S&P 500 closing price, the VIX settlement, the final HYG close — all of these are stable and not subject to revision by the time the cron job fires. Running the economy calculation any earlier risks catching intraday noise rather than the day's actual close. Running it at midnight UTC means the economy domain is capturing the full trading session, not a mid-session snapshot. The other three domains are less time-sensitive to this choice — GDELT events accumulate continuously, weather data is real-time, and solar data is updated by the minute — but there is no downside to waiting until the financial data is settled before computing the composite. The cron schedule is driven by practicality. It just happens to also give the solar and society pipelines a full UTC calendar day's worth of data to work with.
 
 <CrossLinks current="methodology" lang="en" />
