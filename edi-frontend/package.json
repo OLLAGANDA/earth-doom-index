@@ -21,6 +21,7 @@
     "react-router-dom": "^6.30.3",
     "recharts": "^3.8.0",
     "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
     "remark-mdx-frontmatter": "^5.2.0",
     "vite-react-ssg": "^0.9.1-beta.1"
   },
