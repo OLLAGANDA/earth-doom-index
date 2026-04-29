@@ -1,5 +1,5 @@
 import { useOutletContext, useParams, Navigate } from 'react-router-dom'
-import { lazy, Suspense, useMemo } from 'react'
+import { lazy, Suspense } from 'react'
 import PageHead from '../seo/PageHead.jsx'
 import { articleJsonLd, breadcrumbJsonLd, organizationJsonLd } from '../seo/jsonLd.js'
 
@@ -7,14 +7,18 @@ const VALID_TOPICS = ['society', 'climate', 'economy', 'solar', 'methodology']
 const mdxModules = import.meta.glob('../content/*/*.mdx')
 const mdxMeta = import.meta.glob('../content/*/*.mdx', { import: 'meta', eager: true })
 
+const lazyMdx = Object.fromEntries(
+  Object.entries(mdxModules).map(([path, loader]) => [
+    path,
+    lazy(() => loader().then(m => ({ default: m.default }))),
+  ])
+)
+
 function loadMdx(lang, topic) {
   const path = `../content/${lang}/${topic}.mdx`
-  const loader = mdxModules[path]
-  if (!loader) return null
-  return {
-    Component: lazy(() => loader().then(m => ({ default: m.default }))),
-    meta: mdxMeta[path] ?? {},
-  }
+  const Component = lazyMdx[path]
+  if (!Component) return null
+  return { Component, meta: mdxMeta[path] ?? {} }
 }
 
 export default function AboutTopic() {
@@ -23,7 +27,7 @@ export default function AboutTopic() {
 
   const a = t.about
   const valid = VALID_TOPICS.includes(topic)
-  const loaded = useMemo(() => (valid ? loadMdx(lang, topic) : null), [valid, lang, topic])
+  const loaded = valid ? loadMdx(lang, topic) : null
 
   if (!valid || !loaded) {
     return <Navigate to={`/${lang}/about`} replace />
@@ -66,7 +70,7 @@ export default function AboutTopic() {
           <span>{a.topicLabels[topic]}</span>
         </nav>
         <Suspense fallback={<p>Loading...</p>}>
-          <loaded.Component />
+          <loaded.Component key={`${lang}-${topic}`} />
         </Suspense>
       </main>
     </>
