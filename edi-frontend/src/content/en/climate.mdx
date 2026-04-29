@@ -1,26 +1,81 @@
 ---
-title: "Climate Threat Index — Measuring Extreme Weather | Earth Doom Index"
-description: "How the Climate Threat Index of Earth Doom Index uses OpenWeather data to score extreme weather events on a 0–30 scale."
-keywords: ["climate risk index", "extreme weather index", "OpenWeather"]
-publishedAt: "2026-04-26"
+title: "What is the Climate Threat Index? — Extreme Weather Across 7 Global Cities | Earth Doom Index"
+description: "How Earth Doom Index polls real-time weather and air quality data from seven cities on five continents, converts extreme heat, storms, and pollution into per-city scores, and clips the result to a 0–30 threat index."
+keywords: ["climate threat", "OpenWeather", "extreme weather", "heat stress", "AQI"]
+publishedAt: "2026-04-28"
 ---
 
 export const meta = {
-  title: "Climate Threat Index — Measuring Extreme Weather | Earth Doom Index",
-  description: "How the Climate Threat Index of Earth Doom Index uses OpenWeather data to score extreme weather events on a 0–30 scale.",
-  publishedAt: "2026-04-26",
+  title: "What is the Climate Threat Index? — Extreme Weather Across 7 Global Cities | Earth Doom Index",
+  description: "How Earth Doom Index polls real-time weather and air quality data from seven cities on five continents, converts extreme heat, storms, and pollution into per-city scores, and clips the result to a 0–30 threat index.",
+  publishedAt: "2026-04-28",
 }
 
 import TopicChart from '../../components/TopicChart.jsx'
 import CrossLinks from '../../components/CrossLinks.jsx'
 
-# Climate Threat Index
+# What is the Climate Threat Index?
 
-This page is under construction.
+Earth Doom Index's **Climate Threat Index** pulls real-time weather and air quality data from seven cities distributed across five continents, converts each city's conditions — extreme temperatures, dangerous weather codes, oppressive humidity, and air pollution — into a per-city score, then sums everything and clips the result to a 0–30 integer. The short version: it asks whether the planet's surface is having a bad day, using seven data points to stand in for the whole.
 
-The Climate Threat Index uses the **OpenWeather API** to measure extreme weather events, temperature anomalies, and storms, converting them into a 0–30 score.
+## 1. What this index actually measures
 
-A detailed explanation is coming soon.
+The Climate Threat Index covers the **physical environment** domain of Earth Doom Index — one of four tracked alongside Society, Economy, and Solar. Its mandate is short-term atmospheric hazard: heat waves, cold snaps, tornadoes, thunderstorms, gale-force wind, suffocating humidity, wildfire smoke. It does not track long-term climate trends, glacial retreat, sea-level rise, or anything that plays out over years. If you want a graph of civilization's gradual self-immolation, you will need a different dataset. This one asks: was it bad *today*?
+
+The seven-city average produces a planetary estimate in the same way that a handful of weather stations produces a national forecast — approximately, with known gaps, and with full awareness that a cyclone in one city might be completely invisible if six others are having a pleasant afternoon. That averaging effect is a feature of the design, not an oversight: it means the index rises sharply only when multiple regions are simultaneously in distress. A single catastrophic event in one city will raise the score noticeably. Seven simultaneous catastrophic events would peg it near the ceiling.
+
+The index contributes up to 30 points to the 100-point DOOM-9000 composite score, weighted equally alongside the other three domains.
+
+## 2. Where the data comes from
+
+The data source is **OpenWeatherMap API**, specifically two endpoints hit in parallel for each city. The `Current Weather` endpoint returns feels-like temperature, humidity, wind speed, and a WMO-derived weather condition code. The `Air Pollution` endpoint returns an AQI value on a 1–5 scale, retrieved by latitude and longitude.
+
+The seven sample cities are **Seoul, New York, Mumbai, Tokyo, Sydney, Cairo, and Moscow**. The selection covers East Asia, North America, South Asia, Oceania, North Africa, and the Russian Arctic — a rough attempt at climatic diversity across hot-dry, hot-humid, temperate, and subarctic regimes. It is not a scientific sample of the planet. It is seven cities chosen to disagree with each other as often as possible, so that simultaneous high scores across all of them mean something.
+
+OpenWeather's free API tier has per-minute call limits and typically refreshes conditions on the order of minutes. The index is calculated once per day, so refresh-rate lag is not a meaningful concern. More importantly: if an individual city's API call fails, it is isolated via `Promise.allSettled` — one city timing out does not block or invalidate the remaining six. A failed city simply contributes zero to that day's score. This is a deliberate operational trade-off: a slightly understated score is preferable to a broken score.
+
+## 3. How the score is calculated
+
+Scores are built city by city, then combined. The formula for each city is:
+
+**City score = feels-like temperature (0–2) + extreme weather / wind (0–2) + heat-humidity stress (0–1) + air quality (0–1)**
+
+Maximum per city: **6 points**. Maximum across all 7 cities before clipping: **42 points** (per-city max 6 points × 7 cities). Actual ceiling after clipping: **30 points** (`Math.min(Math.round(score), 30)`).
+
+**Feels-like temperature** uses `feelsLike` from OpenWeather's current conditions. Above 30°C, the score climbs as `(feelsLike − 30) ÷ 10 × 2`, capped at 2.0. Below −10°C, it climbs as `(−10 − feelsLike) ÷ 10 × 2`, also capped at 2.0. Between −10°C and 30°C the contribution is zero — the index does not penalize a comfortable day.
+
+**Extreme weather and wind speed** are scored separately and then the *maximum* of the two is used, preventing double-counting when a hurricane is also generating a dangerous weather code. Wind speed follows a step function: hurricane-force at 32.7 m/s or above scores 2.0, storm-force at 24.5 m/s scores 1.5, high wind at 17.2 m/s scores 0.8, and everything below that scores zero. The weather code mapping is the more granular of the two signals and is detailed in Section 4.
+
+**Heat-humidity stress** scores 0.5 when relative humidity exceeds 80% and the feels-like temperature is above 25°C — the combination that makes heat genuinely dangerous rather than merely unpleasant.
+
+**Air quality** normalizes the AQI level directly: `(aqi − 1) ÷ 4`. AQI 1 (Good) contributes 0.0; AQI 5 (Very Poor) contributes 1.0. Linear steps in between.
+
+The seven city scores are summed without averaging. The raw sum can theoretically reach 42 if all seven cities simultaneously hit maximums across all four sub-signals at the same time — an event that has not occurred in practice and is unlikely to occur outside of a genuinely apocalyptic scenario. The 30-point clip is the realistic operational ceiling. On ordinary days the score sits in single digits; during a bad global weather week it might reach the teens.
+
+## 4. Extreme weather code thresholds
+
+OpenWeather condition codes follow a WMO-derived classification scheme using codes from 200 to 800. The index treats the following codes as threat events:
+
+| Code | Description | Points |
+|---|---|---|
+| 781 | Tornado | 2.0 |
+| 762 | Volcanic ash | 1.8 |
+| 504 | Extreme rain | 1.8 |
+| 711 | Wildfire smoke | 1.5 |
+| 771 | Squalls | 1.2 |
+| 503 | Very heavy rain | 1.2 |
+| 511 | Freezing rain | 1.2 |
+| 731·751·761 | Sand/dust storm | 1.2 |
+| 200~232 | Thunderstorm group | 1.2 |
+| 502 | Heavy rain | 0.8 |
+
+Any code not on this list contributes zero to the weather-code signal. Drizzle, mist, overcast skies, scattered clouds — all of these are meteorologically real but not scored as threats.
+
+The 30°C lower bound for heat scoring is grounded in WHO heat-stress guidelines, which broadly identify temperatures above 30°C as the range where physiological heat strain begins to affect unacclimatized individuals. It is not a precise clinical threshold — it is the nearest round number that fits the data model and produces a score that rises meaningfully during actual heat events without screaming every summer afternoon in Cairo.
+
+The −10°C cold threshold deserves a separate note. It is not symmetric with the heat threshold for scientific reasons — it is an operational calibration to prevent Moscow and New York from contributing permanently elevated cold scores during their respective winters. Below −10°C the cold signal starts climbing; above that, cold-climate cities are treated as operating within their normal envelope. This is a deliberate choice to keep the index sensitive to genuine cold anomalies rather than predictable seasonal baselines.
+
+The 42-point theoretical maximum versus the 30-point clip is worth naming plainly: the gap exists because having all seven cities — Seoul, New York, Mumbai, Tokyo, Sydney, Cairo, and Moscow — simultaneously in extreme distress across all four sub-signals at once would require a truly extraordinary convergence of atmospheric disasters. The 30-point ceiling is where the model says "this is as bad as we need to express" and stops. Whether that ceiling is well-calibrated is, as with everything in this project, an open question. This is, ultimately, a toy project — one that takes its numbers seriously enough to document them carefully, while remaining aware that seven cities is not a planet, and one bad afternoon in Tokyo does not constitute a global climate emergency.
 
 <TopicChart kind="climate" days={30} />
 
