@@ -1,26 +1,66 @@
 ---
-title: "Society Threat Index — How GDELT Measures Global Conflict | Earth Doom Index"
-description: "How the Society Threat Index of Earth Doom Index converts GDELT and CAMEO event data into a 0–30 score."
+title: "What is the Society Threat Index? — GDELT-based Global Conflict Tracking | Earth Doom Index"
+description: "How Earth Doom Index measures protests, armed conflicts, and terror events worldwide using GDELT news data and CAMEO codes — converted to a 0–30 score."
 keywords: ["GDELT", "CAMEO codes", "social conflict index", "geopolitical risk"]
-publishedAt: "2026-04-26"
+publishedAt: "2026-04-28"
 ---
 
 export const meta = {
-  title: "Society Threat Index — How GDELT Measures Global Conflict | Earth Doom Index",
-  description: "How the Society Threat Index of Earth Doom Index converts GDELT and CAMEO event data into a 0–30 score.",
-  publishedAt: "2026-04-26",
+  title: "What is the Society Threat Index? — GDELT-based Global Conflict Tracking | Earth Doom Index",
+  description: "How Earth Doom Index measures protests, armed conflicts, and terror events worldwide using GDELT news data and CAMEO codes — converted to a 0–30 score.",
+  publishedAt: "2026-04-28",
 }
 
 import TopicChart from '../../components/TopicChart.jsx'
 import CrossLinks from '../../components/CrossLinks.jsx'
 
-# Society Threat Index
+# What is the Society Threat Index?
 
-This page is under construction.
+Every morning, Earth Doom Index's **Society Threat Index** scans a 15-minute window of global news events from GDELT, extracts protests, armed conflicts, and terror incidents, then feeds them through an asymmetric CAMEO-weighted sum to produce a single number between 0 and 30. It does not analyse why events happen or who is to blame. It simply measures how loud the planet was today — and hands you a score.
 
-The Society Threat Index is built from **GDELT (Global Database of Events, Language, and Tone)** news event data. It measures the frequency and intensity of protests, disputes, and armed conflicts worldwide, converting them into a 0–30 score using CAMEO event-type weights and a NumMentions-based intensity factor.
+## 1. What this index actually measures
 
-A detailed explanation is coming soon.
+The Society Threat Index is one of four domains tracked by Earth Doom Index (Society / Climate / Economy / Solar). Its job is to capture planetary-scale social chaos: not the politics of any one country, not the geopolitical ambitions of any one government, but the aggregate roar of unrest occurring simultaneously across the entire globe. Society contributes up to 30 of the total 100-point DOOM-9000 composite score, weighted equally alongside the Climate, Economy, and Solar domains.
+
+What counts as "loud"? Events, not sentiment. What kind of events, and where, and how intensely they were covered by media outlets worldwide — all of that gets collapsed into a single daily score. Think of it less as political analysis and more as a seismograph bolted to civilization itself: it records amplitude, not meaning.
+
+The framing "how loud was Earth today" is deliberately reductive. It strips away narrative, causality, and blame, leaving only a magnitude. That reductiveness is a feature, not a bug: it keeps the index comparable across wildly different event types and geographies, and it prevents the score from becoming a political editorial dressed up as a data product. The index does not tell you whether today was a bad day for humanity. It tells you how much signal GDELT recorded, weighted by severity, converted to a number. What you make of that number is up to you.
+
+## 2. Where the data comes from
+
+The raw material is **GDELT V2 — Global Database of Events, Language, and Tone**, a public project that began at Georgetown University and has grown into one of the most comprehensive open repositories of global news events in existence. GDELT parses news coverage in over 100 languages in near real-time, normalizes each article into structured event records, and publishes a new export file every 15 minutes. Earth Doom Index reads `lastupdate.txt` to find the URL of the latest export ZIP and streams it directly for parsing — no intermediate storage, no proprietary data, nothing behind a paywall.
+
+The license is free and public. Anyone with a laptop and enough caffeine can pull the same raw data and replicate every calculation Earth Doom Index performs. That reproducibility is one of GDELT's genuine strengths, and it matters for a project like this: the score should be checkable, not taken on faith.
+
+Its structural weakness, worth naming plainly, is a bias toward English-language media. Outlets writing in English are indexed more thoroughly and more quickly than those writing in Arabic, Swahili, or Tagalog. An armed conflict that gets covered by fifty Anglophone outlets will generate a much larger signal than a conflict of equivalent scale that is only reported in local-language press. Events that make the BBC or Reuters will always be louder in this dataset than events that only surface in regional journalism. The Society Threat Index inherits that structural bias and cannot correct for it at the data-source level. Keep it in mind when interpreting the score — especially on days when the number seems surprisingly low.
+
+## 3. How the score is calculated
+
+The calculation runs in three steps.
+
+**(1) Event extraction** — Each GDELT event carries a CAMEO root code indicating what kind of action occurred. Earth Doom Index selects only codes associated with threat and conflict: 13 (threats and intimidation), 14 (protests and demonstrations), 15 (displays of military force), 17 (coercion, sanctions, blockades), 18 (physical assault and bombing), 19 (combat and armed conflict), and 20 (unconventional mass violence including terror, genocide, and WMD use). All non-threatening codes — diplomacy, mediation, negotiation, cooperation, agreements — are discarded entirely. The fact that three countries signed a peace accord today does not lower your score, because peace is not the baseline we are measuring against.
+
+**(2) Weighted sum** — Each selected event is multiplied by its category weight: code 20 carries weight 30, code 19 carries weight 5, code 18 carries weight 4, and codes 17, 15, and 13 each carry weight 1. Code 14 (protests) carries weight 0.2. The weights are deliberately asymmetric — more on that in Section 4. Because the same event can be reported by one outlet or five hundred, raw event counts would be misleading. The `log10(mentions + 1)` correction is applied to the NumMentions field of each event: a story covered by 1,000 media outlets counts roughly three times as much as one covered by a single outlet, not a thousand times as much. This keeps heavily-reported crises from warping the entire day's score.
+
+**(3) Score conversion** — The weighted sum from step 2 can range from near zero on a quiet day to very large numbers during global crises. A 7-segment piecewise linear interpolation maps this raw sum onto the 0–30 integer scale using BREAKPOINTS = [50, 200, 500, 1000, 2000, 4000]. A raw sum below 50 maps to 0. A raw sum at or above 4000 maps to 30. Values in between are linearly interpolated within the segment they fall into. The breakpoints were chosen to keep the score meaningfully distributed across the full 0–30 range under typical conditions, with headroom for genuinely catastrophic days.
+
+## 4. CAMEO root codes and weights
+
+CAMEO — Conflict and Mediation Event Observations — is a classification system developed for political science and international relations research. It encodes over 200 distinct subcodes covering the full spectrum of human political behavior, from diplomatic statements and economic agreements all the way to armed assault and mass atrocities. Earth Doom Index uses only the **root codes** (the two-digit category level), not the granular subcodes.
+
+The asymmetric weighting structure is the most deliberate design choice in this index. Protests (code 14) are a feature of normal political life on Earth: on any given day, there are thousands of protest events somewhere in the world — labor demonstrations, student marches, environmental rallies, opposition gatherings. Assigning them a weight of 0.2 is not a judgment that protests are unimportant. It is a calibration decision that prevents constant background noise from drowning out genuine signal. Mass violence events (code 20) are categorically different: a single incident of this type — a terrorist attack, a genocidal campaign, the reported use of a weapon of mass destruction — represents a planetary-threshold event. Weighting it at 30 (150 times the protest weight) ensures that one such event registers clearly, even on a day when thousands of protest events are also occurring. The 150:1 ratio is a guardrail, not a value judgment.
+
+| Code | Category | Weight |
+|---|---|---|
+| 20 | Unconventional mass violence (terror, genocide, WMD) | 30 |
+| 19 | Combat / armed conflict | 5 |
+| 18 | Assault, bombing, physical attack | 4 |
+| 17 | Coercion, sanctions, blockade | 1 |
+| 15 | Display of military force | 1 |
+| 13 | Threat / intimidation | 1 |
+| 14 | Protest / demonstration | 0.2 |
+
+This is, ultimately, a toy project — one that takes its numbers seriously while remaining clear-eyed about what those numbers cannot tell you. The Society Threat Index does not predict conflict. It does not rank countries. It does not assign blame. It counts what GDELT records, weights by severity, and converts the result to a number between 0 and 30 once a day. Whether that number means something useful on any given morning is left as an exercise for the reader.
 
 <TopicChart kind="society" days={30} />
 
