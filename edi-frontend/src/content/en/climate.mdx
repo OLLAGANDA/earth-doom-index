@@ -36,21 +36,25 @@ OpenWeather's free API tier has per-minute call limits and typically refreshes c
 
 ## 3. How the score is calculated
 
-Scores are built city by city, then combined. The formula for each city is:
+Scores are built city by city, then the 7-city sum is mapped to a 0–30 output through a piecewise normalization curve. The formula for each city is:
 
-**City score = feels-like temperature (0–2) + extreme weather / wind (0–2) + heat-humidity stress (0–1) + air quality (0–1)**
+**City score = feels-like temperature (0–3) + extreme weather / wind (0–2) + heat-humidity stress (0–1.5) + air quality (0–1)**
 
-Maximum per city: **6 points**. Maximum across all 7 cities before clipping: **42 points** (per-city max 6 points × 7 cities). Actual ceiling after clipping: **30 points** (`Math.min(Math.round(score), 30)`).
+Maximum per city: **7.5 points**. Theoretical maximum across all 7 cities: **52.5 points**. The raw sum is then converted to the final 0–30 output via piecewise interpolation (detailed below) — not a flat clip.
 
-**Feels-like temperature** uses `feelsLike` from OpenWeather's current conditions. Above 30°C, the score climbs as `(feelsLike − 30) ÷ 10 × 2`, capped at 2.0. Below −10°C, it climbs as `(−10 − feelsLike) ÷ 10 × 2`, also capped at 2.0. Between −10°C and 30°C the contribution is zero — the index does not penalize a comfortable day.
+**Feels-like temperature** uses `feelsLike` from OpenWeather's current conditions. Above 30°C, the score climbs as `(feelsLike − 30) ÷ 20 × 3`, capped at 3.0. Below −10°C, it climbs as `(−10 − feelsLike) ÷ 20 × 3`, also capped at 3.0. The cap is reached at 50°C (or −30°C) — temperatures near the human habitability threshold where staying outdoors becomes survivable only briefly. Between −10°C and 30°C the contribution is zero — the index does not penalize a comfortable day.
 
 **Extreme weather and wind speed** are scored separately and then the *maximum* of the two is used, preventing double-counting when a hurricane is also generating a dangerous weather code. Wind speed follows a step function: hurricane-force at 32.7 m/s or above scores 2.0, storm-force at 24.5 m/s scores 1.5, high wind at 17.2 m/s scores 0.8, and everything below that scores zero. The weather code mapping is the more granular of the two signals and is detailed in Section 4.
 
-**Heat-humidity stress** is scored in two tiers, capturing the combination that makes heat genuinely dangerous rather than merely unpleasant. Humidity at 90% or above with feels-like temperature at 30°C or above scores 1.0; humidity at 85% or above with feels-like at 28°C or above scores 0.5. Below those combined thresholds the contribution is zero.
+**Heat-humidity stress** is scored in three tiers, capturing the combination that makes heat genuinely dangerous rather than merely unpleasant. The top tier — feels-like at 32°C or above with humidity at 85% or above — scores 1.5 and approximates the WBGT 35°C habitability threshold beyond which even a healthy person in shade survives only a few hours. The middle tier (feels-like ≥ 30°C and humidity ≥ 90%) scores 1.0. The lowest tier (feels-like ≥ 28°C and humidity ≥ 85%) scores 0.5. Below those combined thresholds the contribution is zero.
 
 **Air quality** normalizes the AQI level directly: `(aqi − 1) ÷ 4`. AQI 1 (Good) contributes 0.0; AQI 5 (Very Poor) contributes 1.0. Linear steps in between.
 
-The seven city scores are summed without averaging. The raw sum can theoretically reach 42 if all seven cities simultaneously hit maximums across all four sub-signals at the same time — an event that has not occurred in practice and is unlikely to occur outside of a genuinely apocalyptic scenario. The 30-point clip is the realistic operational ceiling. On ordinary days the score sits in single digits; during a bad global weather week it might reach the teens.
+**Final 0–30 conversion** — The seven city scores are summed without averaging. The raw sum is then mapped to the output score via:
+
+`SCORE_BREAKPOINTS = [(0,0), (3,3), (8,8), (14,14), (22,20), (30,26), (40,30)]`
+
+Each pair is (raw sum, output score). Values between breakpoints are linearly interpolated; raw sums above 40 are clipped at 30. The breakpoints are tuned so that single-city events stay in single digits, raw 22 (5+ cities under simultaneous strong stress) reaches 20 (DANGER), raw 30 (multi-city extreme — comparable to the 2003 European heat wave reproducing across several continents at once) reaches 26 (CRITICAL), and raw 40+ (all seven cities under simultaneous extreme conditions — a planetary scenario in the spirit of 1816's "Year Without a Summer" following the Tambora eruption) reaches 30 (DOOM).
 
 ## 4. Extreme weather code thresholds
 
@@ -75,7 +79,7 @@ The 30°C lower bound for heat scoring is grounded in WHO heat-stress guidelines
 
 The −10°C cold threshold deserves a separate note. It is not symmetric with the heat threshold for scientific reasons — it is an operational calibration to prevent Moscow and New York from contributing permanently elevated cold scores during their respective winters. Below −10°C the cold signal starts climbing; above that, cold-climate cities are treated as operating within their normal envelope. This is a deliberate choice to keep the index sensitive to genuine cold anomalies rather than predictable seasonal baselines.
 
-The 42-point theoretical maximum versus the 30-point clip is worth naming plainly: the gap exists because having all seven cities — Seoul, New York, Mumbai, Tokyo, Sydney, Cairo, and Moscow — simultaneously in extreme distress across all four sub-signals at once would require a truly extraordinary convergence of atmospheric disasters. The 30-point ceiling is where the model says "this is as bad as we need to express" and stops. Whether that ceiling is well-calibrated is, as with everything in this project, an open question. This is, ultimately, a toy project — one that takes its numbers seriously enough to document them carefully, while remaining aware that seven cities is not a planet, and one bad afternoon in Tokyo does not constitute a global climate emergency.
+The 30-point ceiling is anchored to a specific conceptual reference: the kind of planetary-scale climate emergency that historical memory associates with **1816, the "Year Without a Summer"** — the year following the Tambora volcanic eruption, when global temperatures dropped roughly 0.7°C and crop failures and famine struck multiple continents simultaneously. That is the climate-domain analogue of "nuclear war" for Society or "Great Depression" for Economy: not a single dramatic event in one place, but a planet-wide convergence of conditions that would register across every monitoring station at once. The piecewise normalization curve is calibrated so that score reaches 30 when all seven cities — Seoul, New York, Mumbai, Tokyo, Sydney, Cairo, and Moscow — are simultaneously experiencing extreme conditions across multiple sub-signals. Whether that calibration is right is, as with everything in this project, an open question awaiting operational data. This is, ultimately, a toy project — one that takes its numbers seriously enough to document them carefully, while remaining aware that seven cities is not a planet, and one bad afternoon in Tokyo does not constitute a global climate emergency.
 
 <TopicChart kind="climate" days={30} />
 

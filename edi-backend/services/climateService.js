@@ -5,9 +5,30 @@ const axios = require('axios');
 // 대륙별 기후 취약 거점 7곳
 const TARGET_CITIES = ['Seoul', 'New York', 'Mumbai', 'Tokyo', 'Sydney', 'Cairo', 'Moscow'];
 
-// 체감온도 임계점 (30°C/-10°C부터 점수 시작 — 더 넓은 변동폭)
+// 체감온도 임계점 (30°C/-10°C부터 점수 시작 — 50°C/-30°C에서 cap 3.0)
 const HEAT_THRESHOLD = 30;
 const COLD_THRESHOLD = -10;
+
+// raw stress sum (도시 7곳 합산, 이론상 max 52.5) → 0-30 정규화 매핑.
+// 기준점:
+//   raw 8  ≈ 1-2 도시 가벼운 스트레스 → 8점(NOTICE)
+//   raw 14 ≈ 3-4 도시 동시 스트레스 → 14점(CAUTION 진입)
+//   raw 22 ≈ 5+ 도시 동시 강한 스트레스 → 20점(DANGER)
+//   raw 30 ≈ 다중 도시 극단(2003 유럽 폭염급 다발) → 26점(CRITICAL)
+//   raw 40+ ≈ 행성급 동시 비상(1816 탐보라급 시나리오) → 30점(DOOM)
+const SCORE_BREAKPOINTS = [
+  [0, 0], [3, 3], [8, 8], [14, 14], [22, 20], [30, 26], [40, 30],
+];
+
+const normalizeScore = (raw) => {
+  if (raw <= 0) return 0;
+  for (let i = 0; i < SCORE_BREAKPOINTS.length - 1; i++) {
+    const [x0, y0] = SCORE_BREAKPOINTS[i];
+    const [x1, y1] = SCORE_BREAKPOINTS[i + 1];
+    if (raw <= x1) return y0 + (raw - x0) * (y1 - y0) / (x1 - x0);
+  }
+  return 30;
+};
 
 // 극단 기상 코드 → 위협 점수 (0~2점 범위)
 const EXTREME_WEATHER_SCORES = {
@@ -37,26 +58,28 @@ const windScore = (speed) => {
   return 0;
 };
 
-// 도시 날씨 점수 (0~5점): 체감온도(0~2) + 기상코드·풍속(0~2) + 열습도 스트레스(0~1)
+// 도시 날씨 점수 (0~6.5점): 체감온도(0~3) + 기상코드·풍속(0~2) + 열습도 스트레스(0~1.5)
 const cityWeatherScore = (data) => {
   const feelsLike = data.main.feels_like;
   const humidity  = data.main.humidity;
   const weatherId = data.weather?.[0]?.id ?? 800;
   const windSpeed = data.wind?.speed ?? 0;
 
+  // 체감온도: 30°C/-10°C부터 시작, 50°C/-30°C에서 cap 3.0 (habitability 임계 반영)
   let tempScore = 0;
   if (feelsLike > HEAT_THRESHOLD)
-    tempScore = Math.min((feelsLike - HEAT_THRESHOLD) / 10 * 2, 2);
+    tempScore = Math.min((feelsLike - HEAT_THRESHOLD) / 20 * 3, 3);
   else if (feelsLike < COLD_THRESHOLD)
-    tempScore = Math.min((COLD_THRESHOLD - feelsLike) / 10 * 2, 2);
+    tempScore = Math.min((COLD_THRESHOLD - feelsLike) / 20 * 3, 3);
 
   const extremeScore = Math.min(
     Math.max(weatherConditionScore(weatherId), windScore(windSpeed)), 2
   );
 
-  // 열습도 스트레스: 고온다습 환경 (뭄바이·카이로 여름 등)
+  // 열습도 스트레스: WBGT 35°C 근사 임계를 최상위 티어로 추가
   let humidityScore = 0;
-  if      (feelsLike >= 30 && humidity >= 90) humidityScore = 1.0;
+  if      (feelsLike >= 32 && humidity >= 85) humidityScore = 1.5; // habitability 임계
+  else if (feelsLike >= 30 && humidity >= 90) humidityScore = 1.0;
   else if (feelsLike >= 28 && humidity >= 85) humidityScore = 0.5;
 
   return tempScore + extremeScore + humidityScore;
@@ -138,7 +161,7 @@ const calculateClimateScore = async () => {
     });
 
     return {
-      climateScore: Math.min(Math.round(score), 30),
+      climateScore: Math.min(Math.round(normalizeScore(score)), 30),
       summary: summary.join(', ') || '글로벌 주요 거점 기후 안정적',
     };
   } catch (error) {
