@@ -1,26 +1,91 @@
 ---
-title: "Solar Threat Index — Space Weather and Earth | Earth Doom Index"
-description: "How the Solar Threat Index of Earth Doom Index uses NOAA SWPC data to score space weather threats on a 0–10 scale."
-keywords: ["sunspot activity", "geomagnetic storm", "space weather", "NOAA SWPC"]
-publishedAt: "2026-04-26"
+title: "What is the Solar Threat Index? — Kp Storms and X-class Flares | Earth Doom Index"
+description: "How Earth Doom Index converts NOAA SWPC real-time space weather data — geomagnetic storm intensity (Kp index, 0–7) and solar X-ray flare class (0–3) — into a 0–10 solar threat score."
+keywords: ["solar threat", "Kp index", "geomagnetic storm", "solar flare", "NOAA SWPC"]
+publishedAt: "2026-04-28"
 ---
 
 export const meta = {
-  title: "Solar Threat Index — Space Weather and Earth | Earth Doom Index",
-  description: "How the Solar Threat Index of Earth Doom Index uses NOAA SWPC data to score space weather threats on a 0–10 scale.",
-  publishedAt: "2026-04-26",
+  title: "What is the Solar Threat Index? — Kp Storms and X-class Flares | Earth Doom Index",
+  description: "How Earth Doom Index converts NOAA SWPC real-time space weather data — geomagnetic storm intensity (Kp index, 0–7) and solar X-ray flare class (0–3) — into a 0–10 solar threat score.",
+  publishedAt: "2026-04-28",
 }
 
 import TopicChart from '../../components/TopicChart.jsx'
 import CrossLinks from '../../components/CrossLinks.jsx'
 
-# Solar Threat Index
+# What is the Solar Threat Index?
 
-This page is under construction.
+Earth Doom Index's **Solar Threat Index** pulls real-time space weather data from NOAA SWPC (Space Weather Prediction Center) and combines two signals — geomagnetic storm intensity via the Kp index (0–7 points) and solar X-ray flare class (0–3 points) — into a total score on a 0–10 scale. Unlike the three other Earth Doom Index domains, which each contribute up to 30 points, this domain caps at 10. That asymmetry is intentional: the Sun is mostly quiet, solar threats reach Earth through different physical pathways than economic or societal stress, and a 0–30 scale would produce a chart that spends almost every day pressed flat against the bottom. The UI cards make the cap explicit: `Max: 10pts`.
 
-The Solar Threat Index uses **NOAA Space Weather Prediction Center** data on sunspot activity and geomagnetic storms to score space weather threats to Earth on a 0–10 scale.
+## 1. What this index actually measures
 
-A detailed explanation is coming soon.
+The Solar Threat Index covers the **space environment** domain of Earth Doom Index — the one domain where the threat originates 150 million kilometers away and arrives without regard for geopolitics, market conditions, or human decisions about it.
+
+Two distinct physical phenomena are tracked. The first is a **coronal mass ejection (CME)**: a cloud of magnetized plasma launched from the Sun that, when Earth-directed, drives a geomagnetic storm as it compresses and distorts our magnetosphere. The second is a **solar X-ray flare**: an intense burst of electromagnetic radiation from the solar surface that travels at the speed of light and reaches Earth in about eight minutes, long before any accompanying CME arrives.
+
+When these events are strong enough, they do not stay abstract. A significant geomagnetic storm degrades GPS accuracy — the ionospheric distortion throws off ranging calculations, which matters both for navigation and for precision agriculture. It disrupts HF radio (high-frequency shortwave), which is the primary communication backbone for transoceanic aviation and maritime operations that are out of satellite phone range. It perturbs satellite orbital drag, slowly lowering low-Earth-orbit objects. At high latitudes, geomagnetically induced currents (GICs) flow into long-distance power transmission lines, potentially tripping protective relays or, in severe cases, damaging large power transformers — equipment that takes months to manufacture and replace.
+
+The worst documented solar event in recorded history, the **1859 Carrington event**, collapsed the global telegraph network: operators reported sparks flying from their equipment, and some telegraph lines operated for hours without any battery connection, running purely on induced current from the storm. That was infrastructure built from copper wire and wood poles. The equivalent event hitting today's power grid, GPS constellation, and satellite fleet would be something considerably less quaint.
+
+Most days, none of this happens. The Sun goes through roughly 11-year activity cycles, and even near solar maximum, genuinely dangerous storms are rare. That is precisely why this domain scores 0 on most mornings — and why the chart is honest rather than artificially inflated.
+
+## 2. Where the data comes from
+
+The source is **NOAA SWPC (Space Weather Prediction Center, National Oceanic and Atmospheric Administration)** — the U.S. government agency responsible for operational space weather forecasting. SWPC publishes real-time data feeds as open JSON with no authentication required. Two endpoints are used:
+
+- `planetary_k_index_1m.json` — the global Kp index at 1-minute cadence. The service reads the last sample in the array and extracts its `kp_index` field, which gives the current planetary K-index as a floating-point number.
+- `goes/primary/xrays-1-day.json` — X-ray flux data from the GOES geostationary satellite. The service filters for the **0.1–0.8 nm long-wavelength band** (the standard flare classification reference wavelength) and takes the 24-hour maximum flux value in W/m².
+
+Both calls are issued in parallel via `Promise.all`. If the X-ray call fails — a timeout, a NOAA maintenance window, a transient network error — the failure is absorbed to 0, and the score falls back to Kp alone. A partial result is more useful than no result. The Kp fetch failing is treated as a hard error for the whole calculation, since there is no meaningful score without it.
+
+The data is free, publicly accessible, and updated continuously during operational hours. No API key, no rate limiting, no registration.
+
+## 3. How the score is calculated
+
+The final score is the sum of two components, clipped at ten: `Math.min(kpScore + flareScore, 10)`.
+
+**Kp score (0–7 points):** The Kp index runs from 0 to 9. Below Kp 4, the score is 0 — minor field fluctuations produce no practically significant infrastructure effects. At Kp 9 (the extreme), the score clips at 7. Between those bounds, piecewise linear interpolation maps the Kp value to a score following the curve defined by the control points: Kp 4 → 0.8 pts, Kp 5 → 2 pts, Kp 6 → 3.5 pts, Kp 7 → 5 pts, Kp 8 → 6.5 pts, Kp 9 → 7 pts. The acceleration in the upper Kp range reflects that the difference between G3 and G5 storms is not merely "worse" — it is a qualitatively different threat to grid infrastructure.
+
+**Flare score (0–3 points):** X-ray flux is converted through three piecewise linear segments aligned to the M and X flare classes:
+
+- **M1–M5 band: 1e-5 to 5e-5 W/m²** maps to **0–1.5 points**
+- **M5–X1: 5e-5 to 1e-4 W/m²** maps to **1.5–2.5 points**
+- **X1+: above 1e-4 W/m²** maps to **2.5–3 points**
+
+Flux below M1 (below 1e-5 W/m²) scores zero. The flare score is capped at 3.
+
+**Total = Kp(0–7) + flare(0–3); cap at 10.** In practice, the highest scores require both an extreme geomagnetic storm *and* a major X-class flare occurring simultaneously — which can happen (powerful solar events often involve both a CME and an associated flare) but is uncommon. A score of 4 or 5 already represents a significant event. A score above 7 would be genuinely alarming.
+
+The choice of a **0–10 scale rather than the 0–30 scale of the other three domains** follows directly from the signal distribution: the Sun is quiet on the vast majority of days, scores of 0–1 are the norm, and a 0–30 range would flatten nearly all historical data against the baseline. The tighter scale keeps the chart readable without sacrificing information density on the rare days when something interesting actually happens.
+
+## 4. Kp index and X-class flare classification
+
+### Kp index
+
+The planetary K-index (Kp) is the global standard for measuring geomagnetic disturbance intensity. It runs from 0 (perfectly quiet) to 9 (extreme storm), aggregated from ground-based magnetometer stations worldwide into a single planetary number. NOAA classifies Kp 5 and above as **G-class geomagnetic storms**.
+
+| Kp | NOAA class | Index points | Real-world impact |
+|---|---|---|---|
+| 0–3 | Normal/quiet | 0 | No impact |
+| 4 | Active | 0.8 | Weak field disturbance |
+| 5 | G1 minor storm | 2.0 | Light satellite operation impact |
+| 6 | G2 moderate storm | 3.5 | High-latitude power grid voltage fluctuation |
+| 7 | G3 strong storm | 5.0 | GPS degradation, HF radio interference |
+| 8 | G4 severe storm | 6.5 | Widespread GPS and communication disruption |
+| 9 | G5 extreme storm | 7.0 | Carrington-level — power grid at risk |
+
+The nonlinear scoring is deliberate: Kp 4 is a mild nuisance worth barely registering; Kp 8 through 9 represents genuine civilizational infrastructure risk. The score compresses that range without pretending the steps are equivalent.
+
+### X-ray flare classification
+
+Solar flares are classified by their peak X-ray flux in the standard shortwave band: **A < B < C < M < X**, with each class ten times the X-ray output of the class below it. A-class flares are background-level; B and C are common and practically harmless; M-class begins to matter; X-class flares are major events capable of causing real-world disruption.
+
+Index scoring starts at **M-class (1e-5 W/m²)** — the threshold at which communication and radio effects begin to appear. Below M1, flares are essentially invisible to infrastructure. At M5 and above, HF radio blackouts on the sunlit side of Earth become likely. X-class flares can cause complete HF radio blackouts lasting hours across the entire sun-facing hemisphere, even without an accompanying geomagnetic storm: the X-ray burst alone ionizes the upper atmosphere enough to absorb shortwave signals.
+
+The **1859 Carrington event** was an X-class flare — estimated at around X45+, making it the most powerful solar event in the era of electromagnetic observation. If that storm's combination of extreme Kp and X-class flux hit today, the index would peg at 10. The more sobering point is not the number — it is that the physical infrastructure protecting modern civilization from this kind of event was not specifically designed with Carrington scenarios in mind. Most power grids operate with protection systems calibrated against human-caused faults and weather events. A G5 geomagnetic storm is neither.
+
+The Sun does not know or care about this. It will produce another Carrington-scale event at some point. The score will tell you when it happens.
 
 <TopicChart kind="solar" days={30} />
 
