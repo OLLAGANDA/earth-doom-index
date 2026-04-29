@@ -1,26 +1,106 @@
 ---
-title: "Economy Threat Index — Tracking Market Risk | Earth Doom Index"
-description: "How the Economy Threat Index of Earth Doom Index uses global market data to score recession and instability risks on a 0–30 scale."
-keywords: ["economic threat index", "recession index", "market risk"]
-publishedAt: "2026-04-26"
+title: "What is the Economy Threat Index? — 5 Market Stress Signals | Earth Doom Index"
+description: "How Earth Doom Index converts five daily market signals — VIX, S&P 500 daily change, S&P 500 drawdown, HYG drawdown, and yield curve inversion — into a 0–30 economy threat score."
+keywords: ["economy threat", "VIX", "S&P 500", "yield curve", "high yield", "HYG"]
+publishedAt: "2026-04-28"
 ---
 
 export const meta = {
-  title: "Economy Threat Index — Tracking Market Risk | Earth Doom Index",
-  description: "How the Economy Threat Index of Earth Doom Index uses global market data to score recession and instability risks on a 0–30 scale.",
-  publishedAt: "2026-04-26",
+  title: "What is the Economy Threat Index? — 5 Market Stress Signals | Earth Doom Index",
+  description: "How Earth Doom Index converts five daily market signals — VIX, S&P 500 daily change, S&P 500 drawdown, HYG drawdown, and yield curve inversion — into a 0–30 economy threat score.",
+  publishedAt: "2026-04-28",
 }
 
 import TopicChart from '../../components/TopicChart.jsx'
 import CrossLinks from '../../components/CrossLinks.jsx'
 
-# Economy Threat Index
+# What is the Economy Threat Index?
 
-This page is under construction.
+Every day, Earth Doom Index's **Economy Threat Index** pulls five market signals from global financial markets — implied volatility, daily price swings, year-over-year drawdowns in equities and credit, and yield curve shape — converts each to stress points, sums them, and maps the result to a 0–30 score. The design target is not to catch a single bad VIX day. It is to notice when multiple asset classes start deteriorating simultaneously, which is typically what actual systemic crises look like before they get their names.
 
-The Economy Threat Index uses **Yahoo Finance API** market indicators to measure recession risk, market instability, and inflation pressure, converting them into a 0–30 score.
+## 1. What this index actually measures
 
-A detailed explanation is coming soon.
+The Economy Threat Index handles the **capital and financial system** domain of Earth Doom Index — one of four tracked alongside Society, Climate, and Solar. It contributes up to 30 points to the 100-point DOOM-9000 composite.
+
+What it is measuring is *today's market stress* — not GDP trends, not unemployment, not quarterly earnings. Those macroeconomic indicators arrive on government schedules and are typically several months stale by the time they reach you. Financial markets, for all their dysfunction, price in distress in real time. The question this index asks is simple: how many market gauges are simultaneously flashing amber or red right now?
+
+What it is not measuring is direction or causality. A rising VIX could mean geopolitical escalation, a surprise rate decision, or a large options market maker having a very bad afternoon. The index does not attempt to distinguish. It records the amplitude of stress signals across five instruments and converts that amplitude to a number. Interpretation — what caused the number, whether the cause matters, whether it will persist — is left as an exercise for the reader.
+
+The multi-signal design is deliberate. Relying on a single instrument (say, VIX alone) is cheap to game and easy to misread: volatility spikes can be transient noise. When equity drawdowns, credit spreads, and yield curve inversions all move together, the correlation itself becomes meaningful signal. The index is calibrated so that one instrument having a bad day barely registers. Multiple instruments deteriorating in concert is what moves the score.
+
+## 2. Where the data comes from
+
+The data source is **Yahoo Finance** via its unofficial chart endpoint at `query1.finance.yahoo.com/v8/finance/chart/{ticker}`. No API key, no registration, no cost. The endpoint supports 1-year time series (`range=1y, interval=1d`) for drawdown calculations, as well as point-in-time current-price retrieval. It is undocumented, unsupported, and has no service-level agreement — which makes it entirely consistent with the rest of this project's infrastructure choices.
+
+Five tickers are fetched each run:
+
+- **^GSPC** — S&P 500, the benchmark for large-cap U.S. equity
+- **HYG** — iShares iBoxx High Yield Corporate Bond ETF, used as a credit spread proxy
+- **^VIX** — CBOE Volatility Index, the market's implied 30-day fear gauge
+- **^TNX** — 10-year U.S. Treasury yield
+- **^IRX** — 13-week T-bill yield
+
+All five calls are issued in parallel via `Promise.allSettled`. If one ticker's fetch fails — a timeout, a 429, a momentary Yahoo hiccup — it contributes zero stress to that day's score rather than taking down the entire calculation. Partial failure isolation is a small architectural grace note in an otherwise very unglamorous data pipeline.
+
+## 3. How the score is calculated
+
+Three steps.
+
+**(1) Per-signal piecewise linear conversion** — Each of the five signals is converted to **stress points** using a stepped threshold table. The scale for most signals runs 0–12; the yield curve signal runs 0–8. The conversion is not linear: small deviations from normal register near zero, while values in genuinely dangerous territory accumulate stress points quickly. This is the piecewise linear interpolation — each segment between consecutive thresholds is linearly interpolated, and the final result is passed through `Math.round` to produce an integer.
+
+**(2) Stress sum** — The five per-signal stress values are added together. Theoretical maximum is approximately 50 points. In practice, reaching the 30s already represents serious systemic stress — the kind of multi-asset deterioration associated with credit crises and market dislocations, not ordinary drawdowns.
+
+**(3) 0–30 score conversion** — The raw stress sum is mapped to the final 0–30 scale using:
+
+`SCORE_BREAKPOINTS = [(0,0), (5,3), (12,8), (20,14), (28,20), (36,26), (42,30)]`
+
+Each pair is (raw stress sum, output score). Values between breakpoints are linearly interpolated; raw sums above 42 are clipped at 30. The breakpoints are tuned so that single-signal spikes produce modest output scores, and the ceiling requires genuine multi-signal deterioration. This version of the Economy Threat Index was redesigned from a simpler single-volatility model specifically to achieve that calibration.
+
+## 4. The five threat signals dissected
+
+### VIX (CBOE Volatility Index)
+
+VIX is the market's most direct daily read on short-term fear. It is derived from the implied volatility of S&P 500 options and reflects what options market participants collectively expect equity turbulence to look like over the next 30 days. In normal markets VIX lives between 12 and 20. It crosses 30 during meaningful corrections. During full systemic panics — 2008, March 2020 — it has exceeded 80.
+
+Stress thresholds: `12→0, 15→1, 20→3, 30→6, 40→9, 60→12`.
+
+The steep acceleration above 30 reflects that distinction between "nervous market" and "markets actively dislocating." A VIX at 25 is uncomfortable. A VIX at 50 is something else entirely.
+
+### S&P 500 daily change (absolute value)
+
+This signal uses the **absolute value** of the S&P 500's single-day percentage move. Both a sharp rally and a sharp drop register identically — because large moves in either direction signal elevated system volatility, not just directional distress. A 5% up day is not reassuring; it is evidence that the market is swinging wildly, which is itself a stress indicator.
+
+Stress thresholds: `1%→0, 2%→2, 3%→3, 5%→5, 7%→6`.
+
+Note the ceiling at 6 rather than 12: daily percentage moves are noisy and transient. This signal is deliberately de-weighted relative to VIX and drawdown, which capture more persistent conditions.
+
+### S&P 500 1-year drawdown
+
+Where the daily change signal captures short-term volatility, the 1-year drawdown captures **trend damage** — how far the index has fallen from its highest point in the past year. A market can be calm day-to-day while quietly sitting 30% below its peak. That sustained loss is a qualitatively different kind of stress: it reflects eroded wealth, tightened financial conditions, and deteriorating confidence across a much longer time horizon than a single session's move.
+
+Stress thresholds: `5%→0, 10%→2, 20%→5, 30%→8, 40%→11, 50%→12`.
+
+The near-zero stress below 10% reflects that 5–10% pullbacks are routine in normal market operation. The sharp escalation above 20% corresponds to the conventional definition of a bear market.
+
+### HYG drawdown
+
+HYG — the iShares iBoxx High Yield Corporate Bond ETF — is used as a proxy for credit market stress. Its 1-year drawdown from peak is treated analogously to the S&P 500 drawdown but captures a different part of the financial system: corporate borrowers at the riskier end of the credit spectrum. Credit market stress often lags equity stress: the equity market sells off first, and credit follows as default fears spread. HYG deteriorating after an equity selloff functions as a second confirmation signal — evidence that the stress is propagating through the system rather than remaining contained to one asset class.
+
+Stress thresholds: `3%→0, 7%→2, 12%→5, 18%→8, 22%→11, 25%→12`.
+
+The tighter lower threshold (3% vs. the equity's 5%) reflects that high-yield bonds are less volatile instruments by nature; a 7% drawdown in HYG represents more structural stress than a 7% drawdown in the S&P 500.
+
+### Yield curve (10Y − 3M)
+
+The yield curve signal is computed as `^TNX − ^IRX` in basis points: the 10-year Treasury yield minus the 13-week T-bill yield. A normal yield curve slopes upward — longer maturities yield more, compensating investors for time and uncertainty. When the curve inverts — when short-term rates exceed long-term rates — it is typically because the bond market expects the central bank to cut rates in the future, which it usually does in response to a recession. Historically, sustained yield curve inversions have preceded recessions by 12 to 18 months with notable reliability. Whether that predictive relationship persists in all rate environments is a matter of active debate among economists. The index does not take a position on that debate. It simply scores the inversion.
+
+Positive spread = 0 stress. Only inverted (negative) spreads contribute. For the absolute value of the inversion in basis points: `0bp→0, 30→1, 50→3, 100→5, 150→7, 200→8`.
+
+The ceiling at 8 rather than 12 reflects the nature of the indicator: yield curve inversion is a slow-moving forward signal, not a real-time panic gauge. A deeply inverted curve is concerning over a 12-month horizon; it is not itself evidence that financial markets are in crisis *today*. Weighting it accordingly keeps it from dominating the score during inversions that have not yet produced the stress they historically imply.
+
+---
+
+This is, ultimately, a toy project — one that takes its numbers seriously enough to document every threshold and every design decision, while remaining clear-eyed about what those numbers cannot tell you. Financial markets are noisy. Stress signals are ambiguous. Any score above zero should be read as "some of the instruments we track look elevated today," not "the economy is collapsing." Whether the score is calibrated correctly for any particular market environment is an open question. The breakpoints were tuned on historical intuition, not backtested against a formal sample of crises. Use accordingly.
 
 <TopicChart kind="economy" days={30} />
 
