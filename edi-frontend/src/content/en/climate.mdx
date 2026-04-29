@@ -46,7 +46,7 @@ Maximum per city: **6 points**. Maximum across all 7 cities before clipping: **4
 
 **Extreme weather and wind speed** are scored separately and then the *maximum* of the two is used, preventing double-counting when a hurricane is also generating a dangerous weather code. Wind speed follows a step function: hurricane-force at 32.7 m/s or above scores 2.0, storm-force at 24.5 m/s scores 1.5, high wind at 17.2 m/s scores 0.8, and everything below that scores zero. The weather code mapping is the more granular of the two signals and is detailed in Section 4.
 
-**Heat-humidity stress** scores 0.5 when relative humidity exceeds 80% and the feels-like temperature is above 25°C — the combination that makes heat genuinely dangerous rather than merely unpleasant.
+**Heat-humidity stress** is scored in two tiers, capturing the combination that makes heat genuinely dangerous rather than merely unpleasant. Humidity at 90% or above with feels-like temperature at 30°C or above scores 1.0; humidity at 85% or above with feels-like at 28°C or above scores 0.5. Below those combined thresholds the contribution is zero.
 
 **Air quality** normalizes the AQI level directly: `(aqi − 1) ÷ 4`. AQI 1 (Good) contributes 0.0; AQI 5 (Very Poor) contributes 1.0. Linear steps in between.
 
