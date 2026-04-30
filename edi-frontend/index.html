@@ -16,6 +16,22 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://www.earthdoomindex.com/api/og" />
 
+    <script>
+      (function () {
+        var p = location.pathname;
+        if (p !== '/' && p !== '/index.html') return;
+        try {
+          var saved = localStorage.getItem('edi-lang');
+          var lang = (saved === 'ko' || saved === 'en')
+            ? saved
+            : ((navigator.language || '').toLowerCase().indexOf('ko') === 0 ? 'ko' : 'en');
+          location.replace('/' + lang + location.search + location.hash);
+        } catch (e) {
+          location.replace('/en');
+        }
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
