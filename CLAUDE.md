@@ -25,7 +25,7 @@ DoomIndex/
 │   ├── Dockerfile
 │   ├── docker-compose.yml
 │   └── package.json
-└── edi-frontend/           # React + Vite 프론트엔드
+└── edi-frontend/           # React + Vite + SSG 프론트엔드
     ├── api/
     │   └── og.js           # Vercel Edge OG 이미지 생성 (@vercel/og)
     └── src/
@@ -33,8 +33,13 @@ DoomIndex/
         ├── App.jsx         # 메인 컴포넌트 (데이터 fetch, 레이아웃)
         ├── App.css         # 스타일 (nes.css 기반, 반응형)
         ├── index.css       # 전역 스타일
-        ├── i18n.js         # ko/en 번역 사전
-        └── DoomChart.jsx   # 트렌드 차트 (recharts)
+        ├── i18n.js         # ko/en UI 문구 사전
+        ├── DoomChart.jsx   # 트렌드 차트 (recharts)
+        ├── routes.jsx      # vite-react-ssg 라우트 정의 (/, /:lang, /about/...)
+        ├── routes/         # 라우트 컴포넌트 (Home, AboutIndex/Layout/Topic, LangPicker)
+        ├── components/     # 공통 컴포넌트 (TopNav, Footer, AboutCard, TopicChart, CrossLinks)
+        ├── content/        # MDX 본문 (ko/, en/ × climate/economy/society/solar/methodology)
+        └── seo/            # PageHead, jsonLd (SEO/메타 태그/구조화 데이터)
 ```
 
 ## 기술 스택
@@ -45,25 +50,29 @@ DoomIndex/
 - 인프라: Docker Compose + Cloudflare Tunnel
 
 **프론트엔드**
-- React + Vite, nes.css, recharts
+- React 19 + Vite 7, nes.css, recharts
+- SSG: `vite-react-ssg` (빌드 시 정적 페이지 사전 생성)
+- 라우팅: react-router-dom v6, 다국어 경로(`/:lang/...`)
+- 콘텐츠: MDX (`@mdx-js/rollup`, `gray-matter`, `remark-gfm`, `remark-frontmatter`, `remark-mdx-frontmatter`)
 - 배포: Vercel
 - 환경 변수: `VITE_API_URL` (API 서버 주소)
 
 ## 개발 환경 실행
 
 ```bash
-# 백엔드 (API + DB) — 홈서버 운영용
+# 백엔드 (API + DB + Cloudflare Tunnel) — 홈서버 운영용
 cd edi-backend
 docker compose up -d
 docker compose logs -f edi-api
 
-# 로컬 개발용 DB만 띄우기 (포트 5432)
-cd edi-backend
-docker compose -f docker-compose.local.yml up -d
-
-# 프론트엔드
+# 프론트엔드 (개발 서버)
 cd edi-frontend
 npm run dev
+
+# 프론트엔드 빌드
+npm run build       # SSG 빌드 (vite-react-ssg, 정적 페이지 사전 생성)
+npm run build:spa   # SPA 전용 빌드 (vite build)
+npm run lint        # ESLint
 ```
 
 ## 환경 변수
@@ -90,8 +99,7 @@ VITE_API_URL=   # 백엔드 API 주소 (미설정 시 동일 origin)
 | 서비스 | 포트 | 용도 |
 |--------|------|------|
 | edi-api | 3000 | Cloudflare Tunnel 연결 |
-| edi-db (운영) | 5433 | 홈서버 운영 DB (`docker-compose.yml`) |
-| edi-db-local (개발) | 5432 | 로컬 개발 DB (`docker-compose.local.yml`) |
+| edi-db | 5433→5432 | 호스트 5433 → 컨테이너 PostgreSQL 5432 (DB 툴 접속용, 외부는 UFW로 차단) |
 
 ## 주요 API
 
