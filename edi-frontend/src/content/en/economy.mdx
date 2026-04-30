@@ -102,6 +102,17 @@ The ceiling at 8 rather than 12 reflects the nature of the indicator: yield curv
 
 This is, ultimately, a toy project — one that takes its numbers seriously enough to document every threshold and every design decision, while remaining clear-eyed about what those numbers cannot tell you. Financial markets are noisy. Stress signals are ambiguous. Any score above zero should be read as "some of the instruments we track look elevated today," not "the economy is collapsing." Whether the score is calibrated correctly for any particular market environment is an open question. The breakpoints were tuned on historical intuition, not backtested against a formal sample of crises. Use accordingly.
 
+## 5. Maximum-Score Scenarios
+
+Reaching 30 requires **all five signals (VIX, S&P daily change, S&P 1y drawdown, HYG drawdown, yield curve) to enter their threshold ranges simultaneously**. A single-signal spike — e.g., 1987 Black Monday, where VIX and the daily-change signal exploded but credit spreads and trend damage were limited — cannot push the aggregate stress sum to 42 points, the breakpoint that maps to 30. This single-signal-is-not-enough property is the deliberate asymmetry of the design, and it is what makes 30 the economy-domain analogue of a "Tambora-class climate emergency" or "nuclear war": a scenario threshold rather than a routine reading. Yahoo Finance only exposes a 1-year window per ticker, so any pre-1y figure below is a retrospective approximation against the current scoring formula.
+
+| Event | Year | Est. index score |
+|---|---|---|
+| Great Depression onset (post-Black Tuesday) | 1929–32 | ~30 (DOOM) |
+| Global financial crisis (post-Lehman) | 2008.09– | ~24–30 (CRITICAL+) |
+| COVID crash | 2020.03 | ~20–26 (DANGER+) |
+| Black Monday | 1987.10 | ~14–18 (single-signal volatility) |
+
 <TopicChart kind="economy" days={30} />
 
 <CrossLinks current="economy" lang="en" />

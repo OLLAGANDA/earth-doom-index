@@ -62,6 +62,17 @@ The asymmetric weighting structure is the most deliberate design choice in this 
 
 This is, ultimately, a toy project — one that takes its numbers seriously while remaining clear-eyed about what those numbers cannot tell you. The Society Threat Index does not predict conflict. It does not rank countries. It does not assign blame. It counts what GDELT records, weights by severity, and converts the result to a number between 0 and 30 once a day. Whether that number means something useful on any given morning is left as an exercise for the reader.
 
+## 5. Maximum-Score Scenarios
+
+Reaching 30 requires either **a cluster of code-20 events (terror, genocide, WMD use)** or, more realistically, simultaneous code-19 (combat) and code-18 (bombing) coverage spikes across multiple continents — a state of widespread armed conflict. The asymmetric weighting (code 20 = 30 points vs. code 14 = 0.2 points, a 150× ratio) means that no volume of peacetime protest activity can push the score near 30. This is the society-domain analogue of "Tambora-class climate emergency" or "Great Depression": a scenario threshold rather than a routine reading. GDELT only covers the post-1979 news record, so any pre-1979 figures are retrospective approximations against the current scoring formula.
+
+| Event | Year | Est. index score |
+|---|---|---|
+| WWII active years (hypothetical) | 1939–1945 | ~30 (DOOM) |
+| Rwandan genocide | 1994 | ~26–30 (CRITICAL+) |
+| 9/11 and immediate aftermath | 2001 | ~20–24 (DANGER+) |
+| Russia–Ukraine war outbreak | 2022.02 | ~20–24 (DANGER+) |
+
 <TopicChart kind="society" days={30} />
 
 <CrossLinks current="society" lang="en" />

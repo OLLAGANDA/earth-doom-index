@@ -79,7 +79,16 @@ The 30°C lower bound for heat scoring is grounded in WHO heat-stress guidelines
 
 The −10°C cold threshold deserves a separate note. It is not symmetric with the heat threshold for scientific reasons — it is an operational calibration to prevent Moscow and New York from contributing permanently elevated cold scores during their respective winters. Below −10°C the cold signal starts climbing; above that, cold-climate cities are treated as operating within their normal envelope. This is a deliberate choice to keep the index sensitive to genuine cold anomalies rather than predictable seasonal baselines.
 
-The 30-point ceiling is anchored to a specific conceptual reference: the kind of planetary-scale climate emergency that historical memory associates with **1816, the "Year Without a Summer"** — the year following the Tambora volcanic eruption, when global temperatures dropped roughly 0.7°C and crop failures and famine struck multiple continents simultaneously. That is the climate-domain analogue of "nuclear war" for Society or "Great Depression" for Economy: not a single dramatic event in one place, but a planet-wide convergence of conditions that would register across every monitoring station at once. The piecewise normalization curve is calibrated so that score reaches 30 when all seven cities — Seoul, New York, Mumbai, Tokyo, Sydney, Cairo, and Moscow — are simultaneously experiencing extreme conditions across multiple sub-signals. Whether that calibration is right is, as with everything in this project, an open question awaiting operational data. This is, ultimately, a toy project — one that takes its numbers seriously enough to document them carefully, while remaining aware that seven cities is not a planet, and one bad afternoon in Tokyo does not constitute a global climate emergency.
+## 5. Maximum-Score Scenarios
+
+Reaching 30 is not about a single dramatic event in one place — it requires **all seven sample cities (Seoul, New York, Mumbai, Tokyo, Sydney, Cairo, Moscow) to simultaneously record extreme conditions across multiple sub-signals**, a planet-wide convergence rather than a localized disaster. The piecewise normalization curve is calibrated so a raw 7-city sum of 40 reaches 30 (DOOM), and a raw sum near 30 (multi-continent simultaneous extremes, comparable to the 2003 European heat wave reproducing across several regions) reaches 26 (CRITICAL). This is the climate-domain analogue of "nuclear war" for Society or "Great Depression" for Economy. OpenWeather's realtime API cannot reach back to historical events, so all values below are retrospective approximations against the current scoring formula.
+
+| Event | Year | Est. index score |
+|---|---|---|
+| Tambora eruption / Year Without a Summer | 1815–16 | ~30 (DOOM) |
+| European heat wave | 2003 | ~22–26 (CRITICAL) |
+| Russian heat wave + Pakistan floods | 2010 | ~18–22 (DANGER+) |
+| Pakistan floods | 2022 | ~12–15 (single-region extreme) |
 
 <TopicChart kind="climate" days={30} />
 
