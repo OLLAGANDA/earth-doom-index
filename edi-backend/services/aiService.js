@@ -103,7 +103,7 @@ First line\nSecond line\nThird line
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // 실패 시 최대 maxRetries회 재시도 (지수 백오프: 2s → 4s → 8s)
-const generateWithRetry = async (prompt, label, maxRetries = 5) => {
+const generateWithRetry = async (prompt, label, maxRetries = 7) => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await ai.models.generateContent({
