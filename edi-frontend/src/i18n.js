@@ -11,6 +11,14 @@ export const translations = {
     termsClose: '닫기',
     cardInfoSource: (source, max) => `출처: ${source} | 최대: ${max}점`,
     dateLocale: 'ko-KR',
+    home: {
+      intro: {
+        title: 'Earth Doom Index',
+        lead: 'Earth Doom Index는 매일 한 번, 사회·기후·경제·태양 4개 영역의 위협 신호를 수집해 0~100점의 종합 멸망 지수로 환산하는 토이 프로젝트입니다. 단일 영역이 출렁여도 점수는 천천히 움직이고, 여러 영역이 함께 악화될 때만 의미 있게 상승하도록 설계됐습니다.\n\n오늘의 점수는 6단계 위험 등급 — 평온한 착각, 이상 징후 감지, 가속 중, 임계점 근접, 회복 불가, 결과는 명백함 — 가운데 하나로 표시되며, AI 해설가 DOOM-9000이 그날의 데이터에 한 줄 코멘트를 덧붙입니다.',
+        howTitle: '이 점수는 어떻게 계산되나',
+        aboutLink: '종합 산정 방법론 자세히 보기 →',
+      },
+    },
     dangerLevel: {
       doom:     '결과는 명백함',
       critical: '회복 불가',
@@ -113,6 +121,14 @@ export const translations = {
     termsClose: 'Close',
     cardInfoSource: (source, max) => `Source: ${source} | Max: ${max}pts`,
     dateLocale: 'en-US',
+    home: {
+      intro: {
+        title: 'Earth Doom Index',
+        lead: 'Earth Doom Index is a toy project that collects daily threat signals from four domains — Society, Climate, Economy, and Solar — and combines them into a single 0–100 composite doom score. The weighting is deliberate: a single domain spiking in isolation nudges the score only modestly, while convergent deterioration across multiple domains makes the composite move meaningfully.\n\nEach day\'s score is mapped to one of six risk tiers — PEACEFUL ILLUSION, ANOMALY DETECTED, ACCELERATING, NEAR CRITICAL, BEYOND RECOVERY, OUTCOME IS CLEAR — and DOOM-9000, the in-house AI commentator, adds a one-line take on the day\'s data.',
+        howTitle: 'How the score is calculated',
+        aboutLink: 'Read the full methodology →',
+      },
+    },
     dangerLevel: {
       doom:     'OUTCOME IS CLEAR',
       critical: 'BEYOND RECOVERY',

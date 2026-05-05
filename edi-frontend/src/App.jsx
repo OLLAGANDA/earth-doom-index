@@ -415,6 +415,52 @@ function ShareButtons({ score, dangerLabel, lang }) {
   )
 }
 
+function HomePageHead({ lang }) {
+  return (
+    <PageHead
+      lang={lang}
+      title={lang === 'ko'
+        ? 'Earth Doom Index — 오늘 지구는 얼마나 망했나?'
+        : 'Earth Doom Index — How Close Is Earth to Doom Today?'}
+      description={lang === 'ko'
+        ? 'DOOM-9000이 매일 계산하는 지구 멸망 지수. 사회·기후·경제·태양 4개 영역 위협을 종합한 0~100점.'
+        : 'Daily Earth Doom Index calculated by DOOM-9000. A 0–100 score combining society, climate, economy, and solar threat signals.'}
+      path={`/${lang}`}
+      koPath="/ko"
+      enPath="/en"
+      jsonLd={organizationJsonLd()}
+    />
+  )
+}
+
+// 데이터 fetch 여부와 무관하게 prerender HTML에 들어가는 정적 본문.
+// SSG 시점에는 API 호출이 없으므로, Googlebot이 이 섹션의 콘텐츠를 보고 페이지 품질을 평가한다.
+function HomeIntro({ lang, t }) {
+  const intro = t.home.intro
+  const TOPICS = ['society', 'climate', 'economy', 'solar']
+  return (
+    <section className="home-intro">
+      <h1 className="home-intro-title">{intro.title}</h1>
+      <p className="home-intro-tagline">{t.tagline}</p>
+      {intro.lead.split('\n\n').map((para, i) => (
+        <p key={i} className="home-intro-lead">{para}</p>
+      ))}
+      <h2 className="home-intro-subtitle">{intro.howTitle}</h2>
+      <ul className="home-intro-topics">
+        {TOPICS.map(topic => (
+          <li key={topic}>
+            <strong>{t.cards[topic].title}</strong> — {t.cards[topic].desc}{' '}
+            <a href={`/${lang}/about/${topic}`}>{t.about.learnMore}</a>
+          </li>
+        ))}
+      </ul>
+      <p className="home-intro-more">
+        <a href={`/${lang}/about`}>{intro.aboutLink}</a>
+      </p>
+    </section>
+  )
+}
+
 function App({ lang, onToggleLang }) {
   const { data, loading, error } = useDoomData()
   const historyData = useDoomHistory()
@@ -434,11 +480,15 @@ function App({ lang, onToggleLang }) {
   if (loading) {
     return (
       <>
+        <HomePageHead lang={lang} />
         <TopNav lang={lang} onToggle={onToggleLang} />
-        <div className="screen-center">
-          <div className="nes-container is-dark">
-            <p className="nes-text is-primary blink">{t.loadingTitle}</p>
-            <p className="sub-text">{t.loading}</p>
+        <div className="game-screen">
+          <HomeIntro lang={lang} t={t} />
+          <div className="screen-center">
+            <div className="nes-container is-dark">
+              <p className="nes-text is-primary blink">{t.loadingTitle}</p>
+              <p className="sub-text">{t.loading}</p>
+            </div>
           </div>
         </div>
       </>
@@ -448,11 +498,15 @@ function App({ lang, onToggleLang }) {
   if (error) {
     return (
       <>
+        <HomePageHead lang={lang} />
         <TopNav lang={lang} onToggle={onToggleLang} />
-        <div className="screen-center">
-          <div className="nes-container is-dark is-rounded">
-            <p className="nes-text is-error">{t.systemError}</p>
-            <p className="sub-text">{error}</p>
+        <div className="game-screen">
+          <HomeIntro lang={lang} t={t} />
+          <div className="screen-center">
+            <div className="nes-container is-dark is-rounded">
+              <p className="nes-text is-error">{t.systemError}</p>
+              <p className="sub-text">{error}</p>
+            </div>
           </div>
         </div>
       </>
@@ -462,11 +516,15 @@ function App({ lang, onToggleLang }) {
   if (data?.message) {
     return (
       <>
+        <HomePageHead lang={lang} />
         <TopNav lang={lang} onToggle={onToggleLang} />
-        <div className="screen-center">
-          <div className="nes-container is-dark">
-            <p className="nes-text is-warning">{t.noData}</p>
-            <p className="sub-text">{t.noDataSub}</p>
+        <div className="game-screen">
+          <HomeIntro lang={lang} t={t} />
+          <div className="screen-center">
+            <div className="nes-container is-dark">
+              <p className="nes-text is-warning">{t.noData}</p>
+              <p className="sub-text">{t.noDataSub}</p>
+            </div>
           </div>
         </div>
       </>
@@ -479,18 +537,7 @@ function App({ lang, onToggleLang }) {
 
   return (
     <>
-    <PageHead
-      title={lang === 'ko'
-        ? 'Earth Doom Index — 오늘 지구는 얼마나 망했나?'
-        : 'Earth Doom Index — How Close Is Earth to Doom Today?'}
-      description={lang === 'ko'
-        ? 'DOOM-9000이 매일 계산하는 지구 멸망 지수. 사회·기후·경제·태양 4개 영역 위협을 종합한 0~100점.'
-        : 'Daily Earth Doom Index calculated by DOOM-9000. A 0–100 score combining society, climate, economy, and solar threat signals.'}
-      path={`/${lang}`}
-      koPath="/ko"
-      enPath="/en"
-      jsonLd={organizationJsonLd()}
-    />
+    <HomePageHead lang={lang} />
     <TopNav lang={lang} onToggle={onToggleLang} />
     <div className="game-screen">
 
@@ -589,6 +636,9 @@ function App({ lang, onToggleLang }) {
 
       {/* 트렌드 차트 */}
       <DoomChart historyData={historyData} t={t.chart} />
+
+      {/* 사이트 소개 — SEO 본문 콘텐츠 (Googlebot이 렌더 후 DOM에서도 보도록) */}
+      <HomeIntro lang={lang} t={t} />
 
       {/* 푸터 */}
       <Footer lang={lang} t={t} onShowTerms={() => setShowTerms(true)} />

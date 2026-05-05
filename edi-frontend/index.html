@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Earth Doom Index</title>
-    <meta name="description" content="Daily Earth Doom Index — a 0–100 score combining global threat signals." />
-    <meta name="robots" content="index, follow" />
+
+    <!-- 페이지별 <title>, <meta description>, <meta robots>, canonical, hreflang은
+         vite-react-ssg의 <Head>(react-helmet)가 prerender HTML에 주입한다.
+         여기 두면 head에 중복돼서 GSC가 어떤 걸 선택할지 모호해지므로 제거. -->
 
     <meta property="og:image" content="https://www.earthdoomindex.com/api/og" />
     <meta property="og:image:width" content="1200" />

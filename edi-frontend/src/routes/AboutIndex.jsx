@@ -24,6 +24,7 @@ export default function AboutIndex() {
   return (
     <>
       <PageHead
+        lang={lang}
         title={title}
         description={metaDescription}
         path={`/${lang}/about`}

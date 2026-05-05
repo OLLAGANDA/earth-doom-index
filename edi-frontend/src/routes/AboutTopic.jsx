@@ -54,6 +54,7 @@ export default function AboutTopic() {
   return (
     <>
       <PageHead
+        lang={lang}
         title={meta.title}
         description={meta.description}
         path={path}
