@@ -433,27 +433,16 @@ function HomePageHead({ lang }) {
   )
 }
 
-// 데이터 fetch 여부와 무관하게 prerender HTML에 들어가는 정적 본문.
-// SSG 시점에는 API 호출이 없으므로, Googlebot이 이 섹션의 콘텐츠를 보고 페이지 품질을 평가한다.
+// 데이터 fetch 여부와 무관하게 prerender HTML과 hydrated DOM에 항상 들어가는 정적 본문.
+// SSG 시점에 봇이 보는 페이지 품질 신호로 사용된다. 게임 UI 톤을 해치지 않도록
+// h1 + 짧은 lead 한 문단 + about 링크만 두고, 영역별 상세는 about 페이지로 위임.
 function HomeIntro({ lang, t }) {
   const intro = t.home.intro
-  const TOPICS = ['society', 'climate', 'economy', 'solar']
+  const lead = intro.lead.split('\n\n')[0]
   return (
     <section className="home-intro">
       <h1 className="home-intro-title">{intro.title}</h1>
-      <p className="home-intro-tagline">{t.tagline}</p>
-      {intro.lead.split('\n\n').map((para, i) => (
-        <p key={i} className="home-intro-lead">{para}</p>
-      ))}
-      <h2 className="home-intro-subtitle">{intro.howTitle}</h2>
-      <ul className="home-intro-topics">
-        {TOPICS.map(topic => (
-          <li key={topic}>
-            <strong>{t.cards[topic].title}</strong> — {t.cards[topic].desc}{' '}
-            <a href={`/${lang}/about/${topic}`}>{t.about.learnMore}</a>
-          </li>
-        ))}
-      </ul>
+      <p className="home-intro-lead">{lead}</p>
       <p className="home-intro-more">
         <a href={`/${lang}/about`}>{intro.aboutLink}</a>
       </p>
