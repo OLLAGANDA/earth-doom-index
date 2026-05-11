@@ -40,14 +40,16 @@
 ## 아키텍처
 
 ```
-외부 API                   edi-backend              클라이언트
-─────────────────          ────────────────         ──────────
-GDELT V2        ──┐
-OpenWeatherMap  ──┤→  Services  →  Scheduler  →  PostgreSQL
-Yahoo Finance   ──┤   (병렬수집)    (매일 00:01)
-NOAA SWPC       ──┘                    ↓
-Gemini API      ──────────────→  AI Commentary
-                                       ↓
+외부 API                   edi-backend              edi-frontend
+─────────────────          ────────────────         ─────────────
+GDELT V2        ──┐                                 React 19 + Vite 7
+OpenWeatherMap  ──┤→  Services  →  Scheduler  →    ├─ SSG (vite-react-ssg)
+Yahoo Finance   ──┤   (병렬수집)    (매일 00:01)    ├─ MDX 콘텐츠 (ko/en × 5주제)
+NOAA SWPC       ──┘                    ↓            ├─ 다국어 라우트 (/ko, /en, /:lang/about)
+Gemini API      ──────────────→  AI Commentary      └─ Vercel Edge OG 이미지 생성
+                                       ↓                         ↑
+                                  PostgreSQL                     │
+                                       ↓                         │
                                Express Routes  →  GET  /api/today-doom
                                                    GET  /api/doom-history
                                                    GET  /api/vote/today
@@ -55,19 +57,28 @@ Gemini API      ──────────────→  AI Commentary
                                                    DEL  /api/vote
 ```
 
-Cloudflare Tunnel을 통해 외부에 안전하게 노출되며, DB 포트(5432)는 UFW로 외부 차단됩니다.
+백엔드는 Cloudflare Tunnel을 통해 외부에 안전하게 노출되며, DB 포트(5432)는 UFW로 외부 차단됩니다.
+프론트엔드는 빌드 시 정적 페이지를 사전 생성(SSG)하고 Vercel에 배포됩니다.
 
 ---
 
 ## 기술 스택
 
+**백엔드**
 - **Runtime** : Node.js
 - **Framework** : Express.js v5
 - **Database** : PostgreSQL 15
 - **AI** : Google Gemini API (`@google/genai`)
 - **스케줄러** : node-cron (매일 UTC 00:01)
-- **백엔드 인프라** : Docker Compose + Cloudflare Tunnel
-- **프론트엔드 배포** : React + Vite, Vercel
+- **인프라** : Docker Compose + Cloudflare Tunnel
+
+**프론트엔드**
+- **UI** : React 19 + Vite 7, nes.css (레트로 8비트 스타일), recharts
+- **SSG** : `vite-react-ssg` — 빌드 시 정적 페이지 사전 생성
+- **라우팅** : react-router-dom v6, 다국어 경로 (`/:lang/...`)
+- **콘텐츠** : MDX (`@mdx-js/rollup`, `gray-matter`, `remark-gfm`, `remark-frontmatter`)
+- **OG 이미지** : `@vercel/og` (Vercel Edge Function)
+- **배포** : Vercel
 
 ---
 
@@ -90,7 +101,7 @@ cp .env.example .env
 | `GEMINI_API_KEY` | Google Gemini API 키 |
 | `CLOUDFLARE_TUNNEL_TOKEN` | Cloudflare Tunnel 토큰 |
 
-**2. 실행**
+**2. 백엔드 실행**
 
 ```bash
 cd edi-backend
@@ -100,6 +111,31 @@ docker compose up -d
 API 서버(3000)와 PostgreSQL, Cloudflare Tunnel이 함께 시작됩니다.
 
 > **주의:** `docker compose down -v`는 DB 데이터가 삭제됩니다. 데이터는 `edi-db-data` named volume에 보존됩니다.
+
+**3. 프론트엔드 실행**
+
+```bash
+cd edi-frontend
+npm install
+npm run dev        # 개발 서버
+npm run build      # SSG 빌드 (정적 페이지 사전 생성)
+npm run build:spa  # SPA 전용 빌드
+npm run lint       # ESLint
+```
+
+| 변수 | 설명 |
+|------|------|
+| `VITE_API_URL` | 백엔드 API 주소 (미설정 시 동일 origin) |
+
+---
+
+## 콘텐츠 / 다국어
+
+About 페이지(`/:lang/about/:topic`)는 MDX로 작성된 정적 문서를 SSG로 빌드합니다.
+
+- **언어** : 한국어(`ko`), 영어(`en`)
+- **주제** : `society`, `climate`, `economy`, `solar`, `methodology`
+- 본문은 `edi-frontend/src/content/{lang}/{topic}.mdx`에서 편집합니다.
 
 ---
 
