@@ -81,8 +81,7 @@ export const translations = {
       totalVoters: (n) => `${n}명 투표`,
     },
     share: {
-      twitter: '트위터 공유',
-      copy: '링크 복사',
+      button: '공유',
       copied: '복사됨!',
     },
     about: {
@@ -191,8 +190,7 @@ export const translations = {
       totalVoters: (n) => `${n} VOTES`,
     },
     share: {
-      twitter: 'SHARE',
-      copy: 'COPY LINK',
+      button: 'SHARE',
       copied: 'COPIED!',
     },
     about: {

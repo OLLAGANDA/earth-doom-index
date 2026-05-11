@@ -365,18 +365,20 @@ function ShareButtons({ score, dangerLabel, lang }) {
   const copyTimerRef = useRef(null)
   const t = translations[lang].share
   const shareUrl = 'https://www.earthdoomindex.com'
-  const tweetText = lang === 'ko'
+  const shareText = lang === 'ko'
     ? `오늘 지구 멸망 지수: ${score}점 — ${dangerLabel}`
     : `Today's Earth Doom Index: ${score}/100 — ${dangerLabel}`
-  const twitterUrl =
-    `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
 
-  const handleCopy = async () => {
+  const flashCopied = () => {
+    setCopied(true)
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+    copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
+  }
+
+  const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl)
-      setCopied(true)
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
-      copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
+      flashCopied()
     } catch {
       try {
         const el = document.createElement('textarea')
@@ -385,13 +387,23 @@ function ShareButtons({ score, dangerLabel, lang }) {
         el.select()
         document.execCommand('copy')
         document.body.removeChild(el)
-        setCopied(true)
-        if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
-        copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
+        flashCopied()
       } catch {
         // 두 방법 모두 실패 시 조용히 무시 (보안 컨텍스트 외)
       }
     }
+  }
+
+  const handleShare = async () => {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ text: shareText, url: shareUrl })
+        return
+      } catch (err) {
+        if (err && err.name === 'AbortError') return
+      }
+    }
+    await copyToClipboard()
   }
 
   useEffect(() => () => {
@@ -400,16 +412,8 @@ function ShareButtons({ score, dangerLabel, lang }) {
 
   return (
     <div className="share-buttons">
-      <a
-        href={twitterUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="nes-btn is-primary share-btn"
-      >
-        𝕏 {t.twitter}
-      </a>
-      <button className="nes-btn share-btn" onClick={handleCopy}>
-        {copied ? t.copied : t.copy}
+      <button className="nes-btn is-primary share-btn" onClick={handleShare}>
+        {copied ? t.copied : t.button}
       </button>
     </div>
   )
