@@ -101,5 +101,11 @@ export default async function handler() {
     }, 'earthdoomindex.com')
   )
 
-  return new ImageResponse(tree, { width: 1200, height: 630 })
+  return new ImageResponse(tree, {
+    width: 1200,
+    height: 630,
+    headers: {
+      'cache-control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400',
+    },
+  })
 }
