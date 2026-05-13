@@ -2,14 +2,14 @@
 // Gemini API를 사용해 수집된 EDI 데이터를 기반으로 AI 코멘터리를 생성합니다.
 const { GoogleGenAI } = require('@google/genai');
 
-const MODEL = 'gemini-3.1-flash-lite-preview';
+const MODEL = 'gemini-3.1-flash-lite';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const getToneGuide = (score) => {
-  if (score <= 30) return '냉소적 여유로운 톤으로. 예: "아직은 버티는군.", "흥미롭게도 살아있음."';
-  if (score <= 60) return '경고성 냉담한 톤으로. 예: "가속 중임.", "예측 범위 내 진행 중.", "이상 없음. 예상대로임."';
-  return '종말론적 선언 톤으로. 예: "계산 완료.", "결과는 명백함.", "더 이상 변수 없음."';
+  if (score <= 30) return '냉소적 여유로운 톤으로. 예: "아직은 버티고 있습니다.", "흥미롭게도 살아있습니다."';
+  if (score <= 60) return '경고성 냉담한 톤으로. 예: "가속 중입니다.", "예측 범위 내 진행 중입니다.", "이상 없습니다. 예상대로입니다."';
+  return '종말론적 선언 톤으로. 예: "계산 완료되었습니다.", "결과는 명백합니다.", "더 이상 변수 없습니다."';
 };
 
 const buildPrompt = ({ totalScore, societySummary, climateSummary, economySummary, solarSummary }) => {
@@ -50,6 +50,7 @@ ${toneGuide}
 3. 마지막 줄은 인류 전체에 대한 냉소적 한 줄 평으로 마무리할 것
 4. 출력은 코멘터리 3줄만. 기법명, 설명, 제목, 마크다운 절대 금지.
 5. 각 줄은 줄바꿈(\n)으로 구분할 것
+6. 모든 문장은 존댓말(~입니다/~습니다 등)로 작성할 것. 반말, 명사형 종결(~임/~음) 금지.
 `.trim();
 };
 
