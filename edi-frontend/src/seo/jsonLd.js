@@ -70,3 +70,40 @@ export function websiteJsonLd(lang) {
     publisher: { '@id': `${SITE_URL}/#organization` },
   }
 }
+
+/**
+ * CollectionPage — About 허브용. 토픽 묶음 페이지임을 명시.
+ * hasPart는 자식 Article URL 목록 (참조 형태).
+ */
+export function collectionPageJsonLd({ name, description, path, lang, hasPartUrls }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name,
+    description,
+    url: `${SITE_URL}${path}`,
+    inLanguage: lang === 'ko' ? 'ko-KR' : 'en-US',
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+    hasPart: hasPartUrls.map(url => ({
+      '@type': 'Article',
+      url: `${SITE_URL}${url}`,
+    })),
+  }
+}
+
+/**
+ * ItemList — About 허브에서 5개 토픽을 순서·이름·URL로 명시.
+ * Google이 "이 5개가 묶음"이라고 이해하도록 cross-indexing 신호를 강화.
+ */
+export function itemListJsonLd(items) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      url: `${SITE_URL}${item.path}`,
+    })),
+  }
+}

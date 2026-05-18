@@ -1,9 +1,15 @@
 import { useOutletContext } from 'react-router-dom'
 import PageHead from '../seo/PageHead.jsx'
 import AboutCard from '../components/AboutCard.jsx'
-import { breadcrumbJsonLd, organizationJsonLd } from '../seo/jsonLd.js'
+import {
+  breadcrumbJsonLd,
+  organizationJsonLd,
+  collectionPageJsonLd,
+  itemListJsonLd,
+} from '../seo/jsonLd.js'
 
 const TOPICS = ['society', 'climate', 'economy', 'solar']
+const ALL_TOPICS = ['society', 'climate', 'economy', 'solar', 'methodology']
 
 export default function AboutIndex() {
   const { lang, t } = useOutletContext()
@@ -21,6 +27,21 @@ export default function AboutIndex() {
   const leadParagraphs = a.indexLead.split('\n\n')
   const metaDescription = leadParagraphs[0]
 
+  const collection = collectionPageJsonLd({
+    name: title,
+    description: metaDescription,
+    path: `/${lang}/about`,
+    lang,
+    hasPartUrls: ALL_TOPICS.map(topic => `/${lang}/about/${topic}`),
+  })
+
+  const itemList = itemListJsonLd(
+    ALL_TOPICS.map(topic => ({
+      name: a.topicLabels[topic],
+      path: `/${lang}/about/${topic}`,
+    })),
+  )
+
   return (
     <>
       <PageHead
@@ -30,7 +51,7 @@ export default function AboutIndex() {
         path={`/${lang}/about`}
         koPath="/ko/about"
         enPath="/en/about"
-        jsonLd={[organizationJsonLd(), breadcrumb]}
+        jsonLd={[organizationJsonLd(), breadcrumb, collection, itemList]}
       />
       <main className="about-index">
         <h1>{a.indexTitle}</h1>
