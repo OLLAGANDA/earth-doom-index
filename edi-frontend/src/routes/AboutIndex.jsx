@@ -17,7 +17,7 @@ export default function AboutIndex() {
 
   const title = lang === 'ko'
     ? 'Earth Doom Index 지표 설명 — 4개 위협 지수 측정 방식'
-    : 'About — Earth Doom Index Methodology'
+    : 'About Earth Doom Index — How We Measure Society, Climate, Economy, and Solar Threats'
 
   const breadcrumb = breadcrumbJsonLd([
     { name: a.breadcrumbHome, path: `/${lang}` },
