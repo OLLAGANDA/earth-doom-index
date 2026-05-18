@@ -462,7 +462,7 @@ function HomeIntro({ lang, t }) {
 }
 
 function App({ lang, onToggleLang }) {
-  const { data, loading, error } = useDoomData()
+  const { data, error } = useDoomData()
   const historyData = useDoomHistory()
   const t = translations[lang]
 
@@ -476,24 +476,6 @@ function App({ lang, onToggleLang }) {
 
   const [showTerms, setShowTerms] = useState(false)
   const [selectedCard, setSelectedCard] = useState(null)
-
-  if (loading) {
-    return (
-      <>
-        <HomePageHead lang={lang} />
-        <TopNav lang={lang} onToggle={onToggleLang} />
-        <div className="game-screen">
-          <HomeIntro lang={lang} t={t} />
-          <div className="screen-center">
-            <div className="nes-container is-dark">
-              <p className="nes-text is-primary blink">{t.loadingTitle}</p>
-              <p className="sub-text">{t.loading}</p>
-            </div>
-          </div>
-        </div>
-      </>
-    )
-  }
 
   if (error) {
     return (
@@ -533,8 +515,9 @@ function App({ lang, onToggleLang }) {
     )
   }
 
-  const { label: dangerLabel, cls: dangerCls } = dangerLevel(data.total_score ?? 0, t)
-  const rawDate = new Date(data.target_date)
+  const hasData = !!data
+  const { label: dangerLabel, cls: dangerCls } = dangerLevel(data?.total_score ?? 0, t)
+  const rawDate = new Date(data?.target_date)
   const dateStr = isNaN(rawDate.getTime()) ? '-' : rawDate.toLocaleDateString(t.dateLocale)
 
   return (
@@ -547,13 +530,17 @@ function App({ lang, onToggleLang }) {
       <section className="nes-container is-dark with-title title-section">
         <p className="game-subtitle">EARTH DOOM INDEX</p>
         <p className="game-tagline">{t.tagline}</p>
-        <p className={`total-score nes-text ${dangerCls}`}>
-          {data.total_score}
+        <p className={`total-score nes-text ${hasData ? dangerCls : ''}`}>
+          {data?.total_score ?? '—'}
           <span className="score-max"> / 100</span>
         </p>
-        <p className={`danger-badge nes-text ${dangerCls}`}>{dangerLabel}</p>
+        {hasData && (
+          <p className={`danger-badge nes-text ${dangerCls}`}>{dangerLabel}</p>
+        )}
         <p className="game-date">{dateStr}</p>
-        <ShareButtons score={data.total_score ?? 0} dangerLabel={dangerLabel} lang={lang} />
+        {hasData && (
+          <ShareButtons score={data.total_score ?? 0} dangerLabel={dangerLabel} lang={lang} />
+        )}
       </section>
 
       {/* 중단: AI 코멘터리 대화창 */}
@@ -563,15 +550,15 @@ function App({ lang, onToggleLang }) {
           <div className="commentary-body">
             <p className="commentary-text">
               {lang === 'ko'
-                ? (data.ai_commentary ?? t.noCommentary)
-                : (data.ai_commentary_en ?? t.noCommentary)}
+                ? (data?.ai_commentary ?? t.noCommentary)
+                : (data?.ai_commentary_en ?? t.noCommentary)}
             </p>
           </div>
         </div>
       </section>
 
       {/* 투표 섹션 */}
-      <VoteSection todayDoomDate={data.target_date} lang={lang} />
+      <VoteSection todayDoomDate={data?.target_date} lang={lang} />
 
       {/* 하단: 개별 지표 카드 4개 */}
       <section className="score-cards">
@@ -582,11 +569,11 @@ function App({ lang, onToggleLang }) {
         >
           <p className="title">{t.cards.society.title}</p>
           <div className="card-right">
-            <p className={`card-score nes-text ${scoreColor(data.society_score, 30)}`}>
-              {data.society_score}
+            <p className={`card-score nes-text ${hasData ? scoreColor(data.society_score, 30) : ''}`}>
+              {data?.society_score ?? '—'}
             </p>
             <p className="card-max">/ 30</p>
-            <DeltaBadge value={delta(data.society_score, 'society_score')} />
+            <DeltaBadge value={delta(data?.society_score, 'society_score')} />
           </div>
         </div>
 
@@ -597,11 +584,11 @@ function App({ lang, onToggleLang }) {
         >
           <p className="title">{t.cards.climate.title}</p>
           <div className="card-right">
-            <p className={`card-score nes-text ${scoreColor(data.climate_score, 30)}`}>
-              {data.climate_score}
+            <p className={`card-score nes-text ${hasData ? scoreColor(data.climate_score, 30) : ''}`}>
+              {data?.climate_score ?? '—'}
             </p>
             <p className="card-max">/ 30</p>
-            <DeltaBadge value={delta(data.climate_score, 'climate_score')} />
+            <DeltaBadge value={delta(data?.climate_score, 'climate_score')} />
           </div>
         </div>
 
@@ -612,11 +599,11 @@ function App({ lang, onToggleLang }) {
         >
           <p className="title">{t.cards.economy.title}</p>
           <div className="card-right">
-            <p className={`card-score nes-text ${scoreColor(data.economy_score, 30)}`}>
-              {data.economy_score}
+            <p className={`card-score nes-text ${hasData ? scoreColor(data.economy_score, 30) : ''}`}>
+              {data?.economy_score ?? '—'}
             </p>
             <p className="card-max">/ 30</p>
-            <DeltaBadge value={delta(data.economy_score, 'economy_score')} />
+            <DeltaBadge value={delta(data?.economy_score, 'economy_score')} />
           </div>
         </div>
 
@@ -627,11 +614,11 @@ function App({ lang, onToggleLang }) {
         >
           <p className="title">{t.cards.solar.title}</p>
           <div className="card-right">
-            <p className={`card-score nes-text ${scoreColor(data.solar_score, 10)}`}>
-              {data.solar_score ?? 0}
+            <p className={`card-score nes-text ${hasData ? scoreColor(data.solar_score, 10) : ''}`}>
+              {data?.solar_score ?? '—'}
             </p>
             <p className="card-max">/ 10</p>
-            <DeltaBadge value={delta(data.solar_score, 'solar_score')} />
+            <DeltaBadge value={delta(data?.solar_score, 'solar_score')} />
           </div>
         </div>
       </section>
