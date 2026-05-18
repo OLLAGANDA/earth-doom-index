@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 const FOOTER_TOPIC_KEYS = ['society', 'climate', 'economy', 'solar', 'methodology']
 
 export default function Footer({ lang, t, onShowTerms }) {
-  const topicLabels = t.about.topicLabels
+  const navLabels = t.about.topicNavLabels
   const topicsLabel = t.footer?.topicsLabel ?? 'Topics:'
   return (
     <footer className="site-footer">
@@ -11,7 +11,7 @@ export default function Footer({ lang, t, onShowTerms }) {
         <span className="footer-topics-label">{topicsLabel}</span>
         {FOOTER_TOPIC_KEYS.map(key => (
           <Link key={key} to={`/${lang}/about/${key}`} className="footer-link footer-topic-link">
-            {topicLabels[key]}
+            {navLabels[key]}
           </Link>
         ))}
       </div>

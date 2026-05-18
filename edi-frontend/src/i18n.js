@@ -100,6 +100,13 @@ export const translations = {
         solar: '☀ 태양 위협 지수',
         methodology: '📐 종합 산정 방법론',
       },
+      topicNavLabels: {
+        society: '사회',
+        climate: '기후',
+        economy: '경제',
+        solar: '태양',
+        methodology: '방법론',
+      },
       topicShortDesc: {
         society: 'GDELT 뉴스 데이터 기반 시위·분쟁·무력 충돌 측정',
         climate: 'OpenWeather 기반 극단 기상 위협 측정',
@@ -212,6 +219,13 @@ export const translations = {
         economy: '📈 Economy Threat Index',
         solar: '☀ Solar Threat Index',
         methodology: '📐 Methodology',
+      },
+      topicNavLabels: {
+        society: 'Society',
+        climate: 'Climate',
+        economy: 'Economy',
+        solar: 'Solar',
+        methodology: 'Methodology',
       },
       topicShortDesc: {
         society: 'Protests, conflicts, and armed violence — based on GDELT news events',

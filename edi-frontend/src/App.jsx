@@ -443,16 +443,16 @@ function HomePageHead({ lang }) {
 function HomeIntro({ lang, t }) {
   const intro = t.home.intro
   const lead = intro.lead.split('\n\n')[0]
-  const topicLabels = t.about.topicLabels
+  const navLabels = t.about.topicNavLabels
   return (
     <section className="home-intro">
       <h1 className="home-intro-title">{intro.title}</h1>
       <p className="home-intro-lead">{lead}</p>
       <nav className="home-intro-topics" aria-label={intro.topicsLabel}>
-        <a href={`/${lang}/about/society`}>{topicLabels.society}</a>
-        <a href={`/${lang}/about/climate`}>{topicLabels.climate}</a>
-        <a href={`/${lang}/about/economy`}>{topicLabels.economy}</a>
-        <a href={`/${lang}/about/solar`}>{topicLabels.solar}</a>
+        <a href={`/${lang}/about/society`}>{navLabels.society}</a>
+        <a href={`/${lang}/about/climate`}>{navLabels.climate}</a>
+        <a href={`/${lang}/about/economy`}>{navLabels.economy}</a>
+        <a href={`/${lang}/about/solar`}>{navLabels.solar}</a>
       </nav>
       <p className="home-intro-more">
         <a href={`/${lang}/about`}>{intro.aboutLink}</a>
