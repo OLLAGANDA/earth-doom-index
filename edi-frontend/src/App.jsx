@@ -490,7 +490,6 @@ function App({ lang, onToggleLang }) {
               <p className="sub-text">{t.loading}</p>
             </div>
           </div>
-          <Footer lang={lang} t={t} onShowTerms={() => setShowTerms(true)} />
         </div>
       </>
     )
