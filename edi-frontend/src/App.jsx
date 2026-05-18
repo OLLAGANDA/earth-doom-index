@@ -4,7 +4,7 @@ import DoomChart from './DoomChart.jsx'
 import TopNav from './components/TopNav.jsx'
 import Footer from './components/Footer.jsx'
 import PageHead from './seo/PageHead.jsx'
-import { organizationJsonLd } from './seo/jsonLd.js'
+import { organizationJsonLd, websiteJsonLd } from './seo/jsonLd.js'
 import { translations } from './i18n.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''
@@ -432,7 +432,7 @@ function HomePageHead({ lang }) {
       path={`/${lang}`}
       koPath="/ko"
       enPath="/en"
-      jsonLd={organizationJsonLd()}
+      jsonLd={[organizationJsonLd(), websiteJsonLd(lang)]}
     />
   )
 }

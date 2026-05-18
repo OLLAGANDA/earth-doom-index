@@ -53,3 +53,20 @@ export function breadcrumbJsonLd(items) {
     })),
   }
 }
+
+/**
+ * WebSite — 사이트 전체를 식별. 홈 페이지에 한 번 게시하고,
+ * 다른 페이지는 isPartOf로 @id 참조만 한다.
+ */
+export function websiteJsonLd(lang) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: 'Earth Doom Index',
+    alternateName: lang === 'ko' ? '지구 멸망 지수' : 'Earth Doom Index',
+    inLanguage: lang === 'ko' ? 'ko-KR' : 'en-US',
+    publisher: { '@id': `${SITE_URL}/#organization` },
+  }
+}
