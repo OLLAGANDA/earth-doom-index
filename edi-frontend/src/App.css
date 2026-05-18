@@ -421,6 +421,24 @@ body {
   color: #f7d51d;
 }
 
+.home-intro-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 16px 0;
+  font-size: 0.85em;
+  line-height: 1.6;
+}
+
+.home-intro-topics a {
+  color: #92cc41;
+  text-decoration: underline;
+}
+
+.home-intro-topics a:hover {
+  color: #f7d51d;
+}
+
 /* ───── 푸터 ───── */
 .site-footer {
   border-top: 1px solid #2a2a2a;
