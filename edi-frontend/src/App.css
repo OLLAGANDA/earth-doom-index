@@ -468,26 +468,6 @@ body {
   color: #333;
 }
 
-.footer-topics {
-  font-size: 8px;
-  color: #555;
-  margin-bottom: 6px;
-  gap: 10px;
-}
-
-.footer-topics-label {
-  color: #888;
-  letter-spacing: 1px;
-}
-
-.footer-topic-link {
-  color: #e76e55;
-}
-
-.footer-topic-link:hover {
-  color: #ff9980;
-}
-
 .terms-btn {
   background: none;
   border: none;
