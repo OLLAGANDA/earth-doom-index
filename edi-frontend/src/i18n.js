@@ -108,6 +108,9 @@ export const translations = {
         methodology: '4개 지수 종합 및 0~100 점수 산정 방식',
       },
     },
+    footer: {
+      topicsLabel: '토픽:',
+    },
   },
   en: {
     loading: 'Calculating Earth Doom Index...',
@@ -217,6 +220,9 @@ export const translations = {
         solar: 'Solar activity and geomagnetic storms — based on NOAA SWPC',
         methodology: 'How the four indices combine into a 0–100 score',
       },
+    },
+    footer: {
+      topicsLabel: 'Topics:',
     },
   },
 }
