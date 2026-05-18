@@ -5,6 +5,10 @@ const ORGANIZATION = {
   '@id': `${SITE_URL}/#organization`,
   name: 'Earth Doom Index',
   url: SITE_URL,
+  logo: `${SITE_URL}/favicon.svg`,
+  sameAs: [
+    'https://github.com/OLLAGANDA/earth-doom-index',
+  ],
 }
 
 export function organizationJsonLd() {
