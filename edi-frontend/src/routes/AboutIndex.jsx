@@ -9,7 +9,7 @@ import {
 } from '../seo/jsonLd.js'
 
 const TOPICS = ['society', 'climate', 'economy', 'solar']
-const ALL_TOPICS = ['society', 'climate', 'economy', 'solar', 'methodology']
+const ALL_TOPICS = [...TOPICS, 'methodology']
 
 export default function AboutIndex() {
   const { lang, t } = useOutletContext()
