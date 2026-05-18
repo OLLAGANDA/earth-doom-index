@@ -11,6 +11,10 @@ const ORGANIZATION = {
   ],
 }
 
+function bcp47(lang) {
+  return lang === 'ko' ? 'ko-KR' : 'en-US'
+}
+
 export function organizationJsonLd() {
   return { '@context': 'https://schema.org', ...ORGANIZATION }
 }
@@ -24,11 +28,13 @@ export function articleJsonLd({ title, description, path, datePublished, lang })
     '@type': 'Article',
     headline: title,
     description,
-    inLanguage: lang,
+    inLanguage: bcp47(lang),
     datePublished,
     url: `${SITE_URL}${path}`,
-    author: ORGANIZATION,
-    publisher: ORGANIZATION,
+    image: `${SITE_URL}/api/og`,
+    author: { '@id': `${SITE_URL}/#organization` },
+    publisher: { '@id': `${SITE_URL}/#organization` },
+    isPartOf: { '@id': `${SITE_URL}/#website` },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': `${SITE_URL}${path}`,
@@ -66,7 +72,7 @@ export function websiteJsonLd(lang) {
     url: SITE_URL,
     name: 'Earth Doom Index',
     alternateName: lang === 'ko' ? '지구 멸망 지수' : 'Earth Doom Index',
-    inLanguage: lang === 'ko' ? 'ko-KR' : 'en-US',
+    inLanguage: bcp47(lang),
     publisher: { '@id': `${SITE_URL}/#organization` },
   }
 }
@@ -82,7 +88,7 @@ export function collectionPageJsonLd({ name, description, path, lang, hasPartUrl
     name,
     description,
     url: `${SITE_URL}${path}`,
-    inLanguage: lang === 'ko' ? 'ko-KR' : 'en-US',
+    inLanguage: bcp47(lang),
     isPartOf: { '@id': `${SITE_URL}/#website` },
     hasPart: hasPartUrls.map(url => ({
       '@type': 'Article',
